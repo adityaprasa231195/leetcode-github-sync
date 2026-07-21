@@ -9,19 +9,23 @@ A production-ready Chrome/Edge browser extension that automatically pushes your 
 
 ---
 
-## Install (for users)
+## Installation (For Users)
 
 > No Chrome Web Store account needed — just download and load!
 
-1. Go to the [**Releases**](../../releases/latest) page of this repository
-2. Download **`chrome-mv3-prod.zip`** from the latest release
-3. **Unzip** the downloaded file to a folder on your computer
-4. Open Chrome and go to **`chrome://extensions/`**
-5. Turn on **Developer mode** (toggle in the top-right corner)
-6. Click **Load unpacked** and select the **unzipped folder**
-7. Done! Click the extension icon in the toolbar to set up GitHub sync
+**Step 1: Download the Extension**
+1. Go to the **[GitHub Releases Page](https://github.com/adityaprasa231195/leetcode-github-sync/releases/latest)**.
+2. Under the "Assets" section at the bottom of the latest release, click to download the file named **`chrome-mv3-prod.zip`**.
+3. **Unzip** (extract) the downloaded file to a permanent folder on your computer.
 
-> **Updating:** To update, download the new release zip, replace the old folder contents, and click the 🔄 reload button on `chrome://extensions/`.
+**Step 2: Install in Chrome**
+1. Open Google Chrome and type **`chrome://extensions/`** in the URL bar.
+2. Turn on **Developer mode** (the toggle switch in the top-right corner).
+3. Click the **Load unpacked** button in the top-left.
+4. Select the **unzipped folder** you extracted in Step 1.
+5. The extension is now installed! Click the LeetCode Sync icon in your browser toolbar to sign in and set up your repository.
+
+> **How to update in the future:** Download the new release zip, replace the old folder's contents with the new ones, and click the 🔄 reload button on the `chrome://extensions/` page.
 
 
 
