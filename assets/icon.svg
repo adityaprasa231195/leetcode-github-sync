@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Background -->
+  <rect width="128" height="128" rx="20" fill="#000000"/>
+  <!-- "LC" text -->
+  <text x="50%" y="56%" dominant-baseline="middle" text-anchor="middle"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+        font-size="44" font-weight="700" fill="#ffffff">LC</text>
+  <!-- Small GitHub octocat-inspired dot accent -->
+  <circle cx="100" cy="28" r="8" fill="#ffffff" opacity="0.9"/>
+</svg>
