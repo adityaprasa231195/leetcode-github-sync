@@ -1,28 +1,4 @@
-/**
- * Background Service Worker — the brain of the extension.
- *
- * In Manifest V3, the background page is replaced by a service worker.
- * Plasmo automatically registers this file as the background script when it
- * lives at src/background/index.ts.
- *
- * Responsibilities
- * ─────────────────
- * • Receive SUBMISSION_ACCEPTED messages from the content script.
- * • Orchestrate the full upload pipeline:
- *     validate settings → fetch settings/repo → build paths →
- *     upsert solution file → upsert README → record history → notify.
- * • Handle all other message types from the popup and options page
- *   (GET_STATUS, TRIGGER_OAUTH, LOGOUT, GET_REPOS, SET_REPO, etc.).
- * • Retry failed uploads via chrome.alarms (service workers cannot use
- *   setInterval as they may be suspended).
- *
- * Message protocol
- * ─────────────────
- * All messages conform to ExtensionMessage<T>.
- * All responses conform to ExtensionResponse<T>.
- * Handlers return true from onMessage to keep the channel open for
- * async responses (required by Chrome's messaging API).
- */
+
 
 import { upsertFile } from "~github/api"
 import { authenticateWithPAT, initiateOAuthFlow, logout } from "~github/oauth"

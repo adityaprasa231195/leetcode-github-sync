@@ -1,48 +1,4 @@
-/**
- * GitHub OAuth flow for a Chrome/Edge Manifest V3 extension.
- *
- * APPROACH
- * ─────────
- * Chrome extensions cannot act as a confidential OAuth client because the
- * "client secret" would be visible to anyone who unpacks the .crx.  The
- * recommended pattern for public (installed-app) OAuth flows is:
- *
- *   1. Use chrome.identity.launchWebAuthFlow() to open GitHub's authorisation
- *      page in a browser pop-up.
- *   2. GitHub redirects to the extension's identity redirect URL
- *      (chrome-extension://<id>/options.html or the special
- *       https://<id>.chromiumapp.org/ URL that chrome.identity provides).
- *   3. The redirect URL carries a `code` query parameter.
- *   4. Exchange that code for a token via a lightweight proxy server (or a
- *      GitHub App / GitHub OAuth App that allows PKCE / token exchange from
- *      the client side).
- *
- * TOKEN EXCHANGE
- * ──────────────
- * GitHub's OAuth Apps do NOT support PKCE and require the client secret for
- * token exchange — which cannot be done safely from a browser extension.
- *
- * The cleanest production solution is a tiny serverless function (e.g. a
- * Cloudflare Worker / Vercel Edge Function) that holds the client secret and
- * exchanges the code for a token, then returns only the token to the extension.
- *
- * For a zero-infrastructure alternative the user can paste a Personal Access
- * Token (PAT) instead of going through the OAuth flow.  Both paths are
- * supported here.
- *
- * CONFIGURATION
- * ─────────────
- * Set these constants before building:
- *   GITHUB_CLIENT_ID  – your GitHub OAuth App client_id (public, safe to embed)
- *   TOKEN_EXCHANGE_URL – URL of your proxy that exchanges code → token
- *
- * The proxy endpoint must accept POST { code, state, redirect_uri } and return
- * JSON { access_token: string }.
- *
- * References:
- *   https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps
- *   https://developer.chrome.com/docs/extensions/how-to/integrate/oauth
- */
+
 
 import {
   clearCredentials,
@@ -63,11 +19,7 @@ import type { GitHubCredentials, OAuthState } from "~types"
 const GITHUB_CLIENT_ID =
   process.env.PLASMO_PUBLIC_GITHUB_CLIENT_ID ?? "YOUR_GITHUB_CLIENT_ID"
 
-/**
- * URL of the serverless proxy that exchanges the OAuth code for an access token.
- * The proxy keeps the client_secret on the server side.
- * See /proxy/README.md for a ready-to-deploy Cloudflare Worker implementation.
- */
+
 const TOKEN_EXCHANGE_URL =
   process.env.PLASMO_PUBLIC_TOKEN_EXCHANGE_URL ?? "https://your-proxy.example.com/api/github-oauth"
 
@@ -96,17 +48,7 @@ function getRedirectUrl(): string {
 // OAuth flow
 // ---------------------------------------------------------------------------
 
-/**
- * Initiates the GitHub OAuth authorisation flow using chrome.identity.
- *
- * Opens GitHub's authorisation page in an in-extension popup window.
- * After the user approves, GitHub redirects to our redirect URL with a
- * temporary `code`.  We then exchange that code for an access token via the
- * proxy server.
- *
- * @throws {Error} if the user cancels, the state nonce mismatches, or the
- *                 token exchange fails.
- */
+
 export async function initiateOAuthFlow(): Promise<GitHubCredentials> {
   const state = generateState()
   const oauthState: OAuthState = { state, startedAt: Date.now() }
@@ -243,15 +185,7 @@ async function fetchUserProfile(
 // PAT (Personal Access Token) — alternative to OAuth
 // ---------------------------------------------------------------------------
 
-/**
- * Authenticates using a GitHub Personal Access Token instead of OAuth.
- *
- * Useful for power users and avoids the need for a proxy server entirely.
- * The PAT is validated by fetching /user, then stored the same way as an
- * OAuth access token.
- *
- * @throws {Error} if the PAT is invalid or lacks required scopes.
- */
+
 export async function authenticateWithPAT(
   pat: string
 ): Promise<GitHubCredentials> {
@@ -267,12 +201,7 @@ export async function authenticateWithPAT(
 // Logout
 // ---------------------------------------------------------------------------
 
-/**
- * Clears all stored credentials and OAuth state.
- *
- * Note: this does NOT revoke the GitHub OAuth token server-side.
- * Users can revoke it manually at https://github.com/settings/applications.
- */
+
 export async function logout(): Promise<void> {
   await clearCredentials()
   await clearOAuthState()

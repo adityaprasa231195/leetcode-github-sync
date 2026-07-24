@@ -1,29 +1,4 @@
-/**
- * Submission detector — watches for accepted LeetCode submissions and
- * extracts full submission details via the GraphQL API.
- *
- * STRATEGY
- * ─────────
- * LeetCode is a React SPA. Submissions happen without a full page reload, so
- * we cannot rely on navigation events.  Instead we use two complementary
- * detection mechanisms that work together:
- *
- *   1. XHR / Fetch interception
- *      We wrap window.fetch so we can observe the JSON responses LeetCode's
- *      own code receives.  When the submission-check response reports
- *      status_msg === "Accepted", we extract the submission ID and fetch
- *      full details via the GraphQL API.
- *
- *   2. URL change observer
- *      LeetCode navigates to /submissions/detail/<id>/ on the result page.
- *      A MutationObserver on document watches for URL changes and triggers
- *      a detail fetch when we land on a submission detail URL.
- *
- * Both paths converge on fetchSubmissionDetails(), which pulls the canonical
- * data from GraphQL and returns a SubmissionDetail object.
- *
- * Only submissions with statusCode === 10 (Accepted) are forwarded.
- */
+
 
 import { leetcodeGraphQL, SUBMISSION_DETAILS_QUERY } from "./graphql"
 import type { SubmissionDetailsResponse } from "./graphql"
@@ -41,12 +16,7 @@ const STATUS_ACCEPTED = 10
 // Submission detail fetcher
 // ---------------------------------------------------------------------------
 
-/**
- * Fetches full submission details from the LeetCode GraphQL API.
- *
- * @returns SubmissionDetail if the submission was Accepted, null otherwise.
- * @throws on network or GraphQL errors.
- */
+
 export async function fetchSubmissionDetails(
   submissionId: string
 ): Promise<SubmissionDetail | null> {
@@ -87,13 +57,7 @@ export async function fetchSubmissionDetails(
 // Submission ID extraction helpers
 // ---------------------------------------------------------------------------
 
-/**
- * Attempts to extract a submission ID from the current page URL.
- *
- * LeetCode submission detail pages follow this pattern:
- *   https://leetcode.com/problems/<slug>/submissions/<id>/
- *   https://leetcode.com/submissions/detail/<id>/
- */
+
 export function extractSubmissionIdFromUrl(url: string): string | null {
   // New-style URL: /problems/<slug>/submissions/<id>/
   const newStyle = url.match(/\/problems\/[^/]+\/submissions\/(\d+)/)
@@ -110,10 +74,7 @@ export function extractSubmissionIdFromUrl(url: string): string | null {
 // Check-result response interceptor
 // ---------------------------------------------------------------------------
 
-/**
- * Shape of LeetCode's submission check polling response.
- * Only the fields we care about are typed here.
- */
+
 interface CheckResultResponse {
   state?: string         // "SUCCESS" | "PENDING" | "STARTED"
   status_msg?: string    // "Accepted" | "Wrong Answer" | etc.
@@ -123,18 +84,7 @@ interface CheckResultResponse {
 
 type SubmissionCallback = (submission: SubmissionDetail) => void
 
-/**
- * Patches window.fetch to intercept LeetCode's submission check polling.
- *
- * LeetCode polls an endpoint like:
- *   https://leetcode.com/submissions/detail/<id>/check/
- *   https://leetcode.com/problems/<slug>/submit/    (POST, returns submission id)
- *
- * When a completed "Accepted" result is detected, we call fetchSubmissionDetails
- * to get the full data and invoke the callback.
- *
- * Returns a cleanup function that restores the original fetch.
- */
+
 export function interceptFetch(onAccepted: SubmissionCallback): () => void {
   const originalFetch = window.fetch.bind(window)
 
@@ -173,10 +123,7 @@ export function interceptFetch(onAccepted: SubmissionCallback): () => void {
   }
 }
 
-/**
- * Handles a parsed LeetCode check-result JSON object.
- * Fires the callback if the result is a new Accepted submission.
- */
+
 async function handleCheckResponse(
   json: CheckResultResponse,
   processedIds: Set<string>,
@@ -220,14 +167,7 @@ async function handleCheckResponse(
 // URL-change observer
 // ---------------------------------------------------------------------------
 
-/**
- * Watches for SPA navigation to submission detail pages.
- *
- * LeetCode uses the History API for navigation, so we observe both
- * popstate events and MutationObserver changes to detect URL transitions.
- *
- * Returns a cleanup function.
- */
+
 export function watchUrlChanges(onAccepted: SubmissionCallback): () => void {
   const processedIds = new Set<string>()
   let lastUrl = location.href

@@ -1,18 +1,4 @@
-/**
- * LeetCode GraphQL queries and types.
- *
- * LeetCode exposes an undocumented but stable GraphQL endpoint at:
- *   https://leetcode.com/graphql
- *
- * These queries are the same ones the LeetCode web app itself uses, making
- * them the most reliable approach available without an official public API.
- *
- * All queries are executed from the content script (leetcode.com origin),
- * so the user's session cookies are included automatically — no token needed.
- *
- * IMPORTANT: We never scrape DOM for submission data. We always use the
- * GraphQL API directly, making the extension resilient to UI redesigns.
- */
+
 
 /** The GraphQL endpoint used by the LeetCode web application. */
 export const LEETCODE_GRAPHQL_URL = "https://leetcode.com/graphql/"
@@ -21,14 +7,7 @@ export const LEETCODE_GRAPHQL_URL = "https://leetcode.com/graphql/"
 // Query: submission details
 // ---------------------------------------------------------------------------
 
-/**
- * Fetches full details for a submission by its numeric ID.
- *
- * Returns the source code, language, and status, plus a nested `question`
- * object with the problem's metadata.
- *
- * This query mirrors what LeetCode's own submission-detail page uses.
- */
+
 export const SUBMISSION_DETAILS_QUERY = /* GraphQL */ `
   query submissionDetails($submissionId: Int!) {
     submissionDetails(submissionId: $submissionId) {
@@ -93,14 +72,7 @@ export interface SubmissionDetailsResponse {
 // Query executor
 // ---------------------------------------------------------------------------
 
-/**
- * Executes a GraphQL query against the LeetCode API.
- *
- * Must be called from a context with access to leetcode.com cookies
- * (i.e., from a content script injected into leetcode.com).
- *
- * @throws {Error} on HTTP failure or if the response contains GraphQL errors.
- */
+
 export async function leetcodeGraphQL<T>(
   query: string,
   variables: Record<string, unknown>

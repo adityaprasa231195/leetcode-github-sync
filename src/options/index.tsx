@@ -1,16 +1,4 @@
-/**
- * Options page — full settings UI.
- *
- * Plasmo renders this when the user opens "Extension options".
- * It lives at chrome-extension://<id>/options.html
- *
- * Sections:
- *   • GitHub account & logout
- *   • Repository selection + reset
- *   • Sync settings (auto-sync, notifications, README, stats)
- *   • Upload folder & GitHub Enterprise API URL
- *   • Danger zone (clear history)
- */
+
 
 import "~styles/globals.css"
 

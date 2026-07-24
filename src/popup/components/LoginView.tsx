@@ -1,10 +1,4 @@
-/**
- * LoginView — shown when the user is not authenticated.
- *
- * Offers two auth paths:
- *   1. OAuth via GitHub (requires the proxy server + OAuth App client_id)
- *   2. Personal Access Token (no server required)
- */
+
 
 import { useState } from "react"
 import { useMessage } from "../hooks/useMessage"

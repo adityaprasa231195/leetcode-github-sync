@@ -1,12 +1,4 @@
-/**
- * Browser notification helpers.
- *
- * Wraps chrome.notifications (available in service workers / background
- * scripts under the "notifications" manifest permission).
- *
- * All notifications use the extension's icon and a consistent ID scheme so
- * that rapid-fire notifications replace rather than stack.
- */
+
 
 import type { SubmissionDetail, UploadRecord } from "~types"
 import { getDisplayName } from "./language-map"
@@ -14,8 +6,10 @@ import { getDisplayName } from "./language-map"
 /** Base notification ID — a suffix is appended per notification type. */
 const NOTIF_BASE = "lgs"
 
-/** Icon path relative to the extension root (Plasmo copies assets/). */
-const ICON_URL = chrome.runtime.getURL("assets/icon128.png")
+import iconUrlBase64 from "data-base64:../../assets/icon128.png"
+
+/** Icon path for notifications. */
+const ICON_URL = iconUrlBase64
 
 // ---------------------------------------------------------------------------
 // Internal helper
@@ -41,9 +35,7 @@ function create(
 // Public notification functions
 // ---------------------------------------------------------------------------
 
-/**
- * Shows a success notification after uploading a solution.
- */
+
 export function notifySuccess(record: UploadRecord): void {
   create(
     `${NOTIF_BASE}:success:${record.problemId}`,
@@ -53,9 +45,7 @@ export function notifySuccess(record: UploadRecord): void {
   )
 }
 
-/**
- * Shows a "skipped" notification when the file is already in sync.
- */
+
 export function notifySkipped(submission: SubmissionDetail): void {
   create(
     `${NOTIF_BASE}:skipped:${submission.problemId}`,
@@ -65,16 +55,12 @@ export function notifySkipped(submission: SubmissionDetail): void {
   )
 }
 
-/**
- * Shows an error notification.
- */
+
 export function notifyError(title: string, message: string): void {
   create(`${NOTIF_BASE}:error`, `⚠️ ${title}`, message)
 }
 
-/**
- * Shows an authentication-expired notification.
- */
+
 export function notifyAuthExpired(): void {
   create(
     `${NOTIF_BASE}:auth`,
@@ -83,9 +69,7 @@ export function notifyAuthExpired(): void {
   )
 }
 
-/**
- * Shows a rate-limit warning.
- */
+
 export function notifyRateLimit(): void {
   create(
     `${NOTIF_BASE}:ratelimit`,

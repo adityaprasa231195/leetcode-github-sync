@@ -1,9 +1,4 @@
-/**
- * RepoSelector — lets the user pick a GitHub repository to sync solutions into.
- *
- * Fetches the repo list from the background worker, supports filtering by name,
- * and saves the selection.
- */
+
 
 import { useEffect, useMemo, useState } from "react"
 import { useMessage } from "../hooks/useMessage"

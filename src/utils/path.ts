@@ -1,20 +1,8 @@
-/**
- * Utilities for building GitHub repository paths from submission metadata.
- *
- * The canonical folder structure inside the target repo is:
- *
- *   <repoFolder>/<problemId> <problemTitle>/solution.<ext>
- *
- * e.g.   LeetCode/29 Divide Two Integers/solution.cpp
- */
+
 
 import { getExtension } from "./language-map"
 
-/**
- * Sanitises a string so it is safe to use as a file/folder name on every OS
- * and in a GitHub path.  Replaces characters that are illegal in Windows paths
- * or that would confuse GitHub's tree API.
- */
+
 export function sanitiseName(name: string): string {
   return name
     .replace(/[\\/:*?"<>|]/g, "") // illegal Windows path chars

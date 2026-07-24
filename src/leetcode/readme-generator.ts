@@ -1,18 +1,4 @@
-/**
- * Generates a per-problem README.md file with problem metadata.
- *
- * The README is stored alongside the solution files:
- *   LeetCode/<id> <title>/README.md
- *
- * It contains:
- *   - Problem number, title, difficulty, and LeetCode link
- *   - Topic tags
- *   - A table of all uploaded solutions (language, runtime, memory, date)
- *
- * When a new language solution is uploaded, the README is re-generated to
- * include the new row.  The function accepts an array of all existing
- * UploadRecord entries for the same problem so the table stays complete.
- */
+
 
 import type { SubmissionDetail, UploadRecord } from "~types"
 import { getDisplayName } from "~utils/language-map"
@@ -24,12 +10,7 @@ const DIFFICULTY_LABEL: Record<string, string> = {
   Hard: "🔴 Hard"
 }
 
-/**
- * Generates the full README.md content for a problem.
- *
- * @param submission   The latest accepted submission (used for metadata).
- * @param priorUploads Previously uploaded solutions for this problem (may be empty).
- */
+
 export function generateReadme(
   submission: SubmissionDetail,
   priorUploads: UploadRecord[]

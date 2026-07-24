@@ -1,7 +1,4 @@
-/**
- * Generic hook for sending a typed message to the background worker
- * and tracking loading / error state.
- */
+
 
 import { useCallback, useState } from "react"
 import type { ExtensionMessage, ExtensionResponse, MessageType } from "~types"

@@ -1,9 +1,4 @@
-/**
- * Maps LeetCode language identifiers to file extensions and display names.
- *
- * LeetCode sends language slugs in submission results (e.g. "cpp", "python3").
- * This module normalises them to file extensions and human-readable labels.
- */
+
 
 import type { LeetCodeLanguage } from "~types"
 
@@ -65,18 +60,12 @@ export const LANGUAGE_DISPLAY: Record<string, string> = {
   cangjie: "Cangjie"
 }
 
-/**
- * Returns the file extension for a given LeetCode language slug.
- * Falls back to "txt" if the language is unrecognised.
- */
+
 export function getExtension(language: string): string {
   return LANGUAGE_EXTENSION[language.toLowerCase()] ?? "txt"
 }
 
-/**
- * Returns the human-readable display name for a LeetCode language slug.
- * Falls back to the raw slug with first letter capitalised.
- */
+
 export function getDisplayName(language: string): string {
   const key = language.toLowerCase()
   return (
@@ -84,10 +73,7 @@ export function getDisplayName(language: string): string {
   )
 }
 
-/**
- * Normalises a LeetCode language slug to our canonical LeetCodeLanguage type.
- * Unknown slugs are returned as-is (cast).
- */
+
 export function normaliseLanguage(raw: string): LeetCodeLanguage {
   return raw.toLowerCase() as LeetCodeLanguage
 }

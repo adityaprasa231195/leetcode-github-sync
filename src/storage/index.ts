@@ -1,20 +1,4 @@
-/**
- * Secure storage module wrapping chrome.storage.local.
- *
- * All extension state is persisted here.  Sensitive values (access tokens) are
- * stored only in chrome.storage.local — which is sandboxed to the extension
- * origin and never accessible from page scripts.
- *
- * We intentionally avoid chrome.storage.sync for tokens because sync storage
- * sends data to Google's servers.
- *
- * Key layout:
- *   lgs:credentials   → GitHubCredentials | null
- *   lgs:repo          → GitHubRepo | null
- *   lgs:settings      → ExtensionSettings
- *   lgs:history       → UploadRecord[]   (capped at MAX_HISTORY items)
- *   lgs:oauth_state   → OAuthState | null  (ephemeral, cleared after auth)
- */
+
 
 import type {
   ExtensionSettings,

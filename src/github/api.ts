@@ -1,17 +1,4 @@
-/**
- * GitHub API module — thin, typed wrapper around @octokit/rest.
- *
- * Responsibilities:
- *   • List the authenticated user's repositories.
- *   • Check whether a file already exists (and retrieve its SHA).
- *   • Create or update a file (PUT /repos/{owner}/{repo}/contents/{path}).
- *   • All calls use the access token from storage.
- *
- * We use @octokit/rest (official GitHub SDK) throughout.
- * No custom HTTP calls except where Octokit doesn't expose an endpoint.
- *
- * Retry behaviour is handled by withRetry() from utils/retry.
- */
+
 
 import { Octokit } from "@octokit/rest"
 import type { RequestError } from "@octokit/types"
@@ -23,10 +10,7 @@ import { isRetryableHttpError, withRetry } from "~utils/retry"
 // Octokit factory
 // ---------------------------------------------------------------------------
 
-/**
- * Creates an authenticated Octokit instance using the stored access token.
- * Throws if the user is not authenticated.
- */
+
 async function getOctokit(): Promise<Octokit> {
   const credentials = await getCredentials()
   if (!credentials?.accessToken) {
@@ -51,12 +35,7 @@ async function getOctokit(): Promise<Octokit> {
 /** Maximum number of repos to load per page (GitHub API max is 100). */
 const REPOS_PER_PAGE = 100
 
-/**
- * Returns all repositories accessible to the authenticated user,
- * sorted by most recently pushed.
- *
- * Fetches up to 5 pages (500 repos) to cover large accounts.
- */
+
 export async function listRepositories(): Promise<GitHubRepo[]> {
   const octokit = await getOctokit()
 
@@ -108,16 +87,7 @@ export interface ExistingFileInfo {
   encodedContent: string // decoded UTF-8 string
 }
 
-/**
- * Checks whether a file exists in the repository at the given path.
- *
- * Returns the file's SHA and current content if it exists, or null if not found.
- *
- * @param owner  – repository owner login
- * @param repo   – repository name
- * @param path   – path relative to repo root (e.g. "LeetCode/29 Divide Two Integers/solution.cpp")
- * @param branch – branch to check (defaults to the repo's default branch)
- */
+
 export async function getExistingFile(
   owner: string,
   repo: string,
@@ -174,23 +144,7 @@ export interface UploadFileResult {
   commitSha: string
 }
 
-/**
- * Creates or updates a file in the repository.
- *
- * If a file already exists at `path` (determined by the presence of `existingSha`),
- * the SHA is included in the request so GitHub performs an update rather than
- * creating a duplicate.
- *
- * Content is UTF-8 encoded to base64 before upload, as required by the API.
- *
- * @param owner        – repository owner login
- * @param repo         – repository name
- * @param path         – destination path relative to repo root
- * @param content      – UTF-8 file content
- * @param message      – Git commit message
- * @param existingSha  – SHA of the existing file blob (omit to create new file)
- * @param branch       – target branch (defaults to repo default branch)
- */
+
 export async function uploadFile(
   owner: string,
   repo: string,
@@ -237,15 +191,7 @@ export type UpsertResult =
   | { status: "updated"; fileUrl: string; commitSha: string }
   | { status: "skipped"; reason: string }
 
-/**
- * High-level helper that:
- *   1. Checks whether the file already exists.
- *   2. If it does and the content is identical → skips upload.
- *   3. If it does and content differs → updates the file.
- *   4. If it doesn't exist → creates it.
- *
- * Returns a discriminated union describing the outcome.
- */
+
 export async function upsertFile(
   owner: string,
   repo: string,

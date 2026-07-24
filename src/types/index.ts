@@ -1,8 +1,4 @@
-/**
- * Shared TypeScript types and interfaces for the LeetCode GitHub Sync extension.
- *
- * Keep all cross-module types here so individual modules stay lean.
- */
+
 
 // ---------------------------------------------------------------------------
 // Submission & problem types
@@ -148,11 +144,7 @@ export interface UploadRecord {
 // Messaging protocol (content ↔ background)
 // ---------------------------------------------------------------------------
 
-/**
- * All message types passed between content scripts and the background worker.
- * Plasmo's @plasmohq/messaging provides typed request/response pairs, but we
- * also define a unified discriminated union for sendMessage calls.
- */
+
 export type MessageType =
   | "SUBMISSION_ACCEPTED"
   | "GET_STATUS"

@@ -1,9 +1,4 @@
-/**
- * React hook — loads and refreshes the full extension status from the
- * background service worker.
- *
- * Sends GET_STATUS on mount and whenever the popup regains focus.
- */
+
 
 import { useCallback, useEffect, useState } from "react"
 import type { ExtensionMessage, ExtensionResponse, ExtensionStatus } from "~types"

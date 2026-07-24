@@ -1,26 +1,4 @@
-/**
- * LeetCode content script — ISOLATED world (default).
- *
- * Injected into every page matching https://leetcode.com/* in the ISOLATED
- * world. This script acts as a bridge between the MAIN world content script
- * (leetcode-main.ts) and the background service worker.
- *
- * Architecture:
- *   MAIN world (leetcode-main.ts)
- *     → detects accepted submissions via fetch interception + URL watching
- *     → posts SubmissionDetail via window.postMessage
- *
- *   ISOLATED world (this file)
- *     → listens for window "message" events from the MAIN world
- *     → validates the message shape and origin
- *     → forwards to background via chrome.runtime.sendMessage
- *
- * This split is necessary because:
- *   - Fetch interception requires the MAIN world (page's JS context)
- *   - chrome.runtime.sendMessage requires the ISOLATED world (extension context)
- *
- * Plasmo picks up this file automatically because it lives in src/contents/.
- */
+
 
 import type { PlasmoCSConfig } from "plasmo"
 import type { ExtensionMessage, SubmissionDetail } from "~types"
@@ -45,11 +23,7 @@ const LGS_MESSAGE_TYPE = "LGS_SUBMISSION_ACCEPTED"
 // Submission detail shape validator
 // ---------------------------------------------------------------------------
 
-/**
- * Basic runtime validation that the payload looks like a SubmissionDetail.
- * Since window.postMessage can carry any data, we need to guard against
- * malformed or spoofed messages.
- */
+
 function isSubmissionDetail(data: unknown): data is SubmissionDetail {
   if (typeof data !== "object" || data === null) return false
   const obj = data as Record<string, unknown>
@@ -84,10 +58,7 @@ function onWindowMessage(event: MessageEvent): void {
   forwardToBackground(payload)
 }
 
-/**
- * Forwards a validated SubmissionDetail to the background service worker
- * via chrome.runtime.sendMessage.
- */
+
 async function forwardToBackground(submission: SubmissionDetail): Promise<void> {
   console.info(
     "[LGS] Forwarding submission to background: #" + submission.problemId + " " + submission.problemTitle

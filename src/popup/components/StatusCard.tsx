@@ -1,6 +1,4 @@
-/**
- * StatusCard — shows the current sync status, last upload, and quick controls.
- */
+
 
 import type { ExtensionStatus, UploadRecord } from "~types"
 import { getDisplayName } from "~utils/language-map"

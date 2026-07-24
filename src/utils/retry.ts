@@ -1,9 +1,4 @@
-/**
- * Generic exponential-backoff retry utility.
- *
- * Used when calling the GitHub API (rate limits, transient 5xx errors) and
- * when polling LeetCode for submission results.
- */
+
 
 export interface RetryOptions {
   /** Maximum number of attempts (including the first). Default: 3 */
@@ -18,11 +13,7 @@ export interface RetryOptions {
   shouldRetry?: (error: unknown, attempt: number) => boolean
 }
 
-/**
- * Executes `fn` with exponential backoff on failure.
- *
- * @throws The last error if all attempts are exhausted.
- */
+
 export async function withRetry<T>(
   fn: () => Promise<T>,
   options: RetryOptions = {}

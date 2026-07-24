@@ -1,17 +1,4 @@
-/**
- * Popup entry point.
- *
- * Plasmo renders this file when the user clicks the extension icon.
- * The popup is 380px wide and auto-height (capped by the container).
- *
- * Views:
- *   loading  → spinner while fetching status
- *   login    → LoginView (not authenticated)
- *   setup    → RepoSelector (authenticated but no repo selected)
- *   main     → StatusCard + HistoryList (fully configured)
- *
- * All state mutations go through the background worker via chrome.runtime.sendMessage.
- */
+
 
 import "~styles/globals.css"
 

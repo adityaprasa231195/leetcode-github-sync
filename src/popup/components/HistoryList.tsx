@@ -1,6 +1,4 @@
-/**
- * HistoryList — shows recent upload records in a compact scrollable list.
- */
+
 
 import { useEffect, useState } from "react"
 import { useMessage } from "../hooks/useMessage"
