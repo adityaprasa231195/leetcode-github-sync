@@ -1,32 +1,4 @@
-/**
- * GitHub OAuth Token Exchange Proxy — Cloudflare Worker
- *
- * This tiny worker holds the GitHub OAuth App client_secret and exchanges
- * the temporary authorisation code from the browser extension for an
- * access token.  It is the ONLY component that needs a server.
- *
- * DEPLOY
- * ───────
- * 1. Install Wrangler: npm install -g wrangler
- * 2. Set secrets (never commit these):
- *      wrangler secret put GITHUB_CLIENT_ID
- *      wrangler secret put GITHUB_CLIENT_SECRET
- * 3. Optionally restrict CORS to your extension's origin by setting:
- *      wrangler secret put ALLOWED_EXTENSION_ID   (your chrome extension id)
- * 4. Deploy:
- *      wrangler deploy
- *
- * REQUEST
- * ───────
- * POST /api/github-oauth
- * Content-Type: application/json
- * Body: { "code": "<auth_code>", "state": "<nonce>", "redirect_uri": "<uri>" }
- *
- * RESPONSE
- * ────────
- * 200  { "access_token": "gho_..." }
- * 4xx  { "error": "description" }
- */
+
 
 export default {
   async fetch(request, env) {

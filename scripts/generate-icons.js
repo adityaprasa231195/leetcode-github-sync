@@ -1,14 +1,4 @@
-/**
- * Generates PNG icon files for the extension using only Node.js built-ins.
- *
- * PNG encoding: we build each PNG from scratch using zlib deflate and the
- * PNG chunk structure. No external dependencies required.
- *
- * Sizes produced: 16, 32, 48, 64, 128 px (all square)
- * Output: assets/icon{size}.png
- *
- * Run: node scripts/generate-icons.js
- */
+
 
 "use strict"
 
@@ -58,10 +48,7 @@ function pngChunk(type, data) {
   return Buffer.concat([len, typeBytes, data, crcVal])
 }
 
-/**
- * Encodes a flat RGBA pixel array (Uint8Array, width*height*4 bytes) into a
- * valid PNG file buffer.
- */
+
 function encodePNG(width, height, rgba) {
   // PNG signature
   const sig = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
@@ -101,10 +88,7 @@ function encodePNG(width, height, rgba) {
 // Icon renderer — black background, white "LC" text
 // ---------------------------------------------------------------------------
 
-/**
- * Draws a simple black-square icon with white "LC" text into a flat RGBA
- * Uint8Array, without any canvas API.
- */
+
 function renderIcon(size) {
   const pixels = new Uint8Array(size * size * 4)
 
@@ -142,10 +126,7 @@ function renderIcon(size) {
   return pixels
 }
 
-/**
- * Draws ASCII text centered on the icon using a minimal 5×7 bitmap font.
- * Only needs L and C — enough for our icon.
- */
+
 const GLYPHS = {
   L: [
     0b10000,
