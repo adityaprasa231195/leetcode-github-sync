@@ -15,7 +15,7 @@ export function StatusCard({ status, onChangeRepo, onToggleSync }: StatusCardPro
 
   return (
     <div className="flex flex-col gap-0 divide-y divide-brand-100">
-      {/* Repository row */}
+      {}
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex flex-col min-w-0">
           <span className="text-xs font-medium text-brand-500 uppercase tracking-wide">
@@ -37,7 +37,7 @@ export function StatusCard({ status, onChangeRepo, onToggleSync }: StatusCardPro
         </button>
       </div>
 
-      {/* Auto-sync toggle */}
+      {}
       <div className="flex items-center justify-between px-4 py-3">
         <div>
           <span className="text-xs font-medium text-brand-500 uppercase tracking-wide">
@@ -55,7 +55,7 @@ export function StatusCard({ status, onChangeRepo, onToggleSync }: StatusCardPro
         />
       </div>
 
-      {/* Last upload */}
+      {}
       <div className="px-4 py-3">
         <span className="text-xs font-medium text-brand-500 uppercase tracking-wide">
           Last Upload
@@ -70,9 +70,9 @@ export function StatusCard({ status, onChangeRepo, onToggleSync }: StatusCardPro
   )
 }
 
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
+
+
+
 
 function UploadSummary({ record }: { record: UploadRecord }) {
   const timeAgo = formatRelative(record.timestamp)

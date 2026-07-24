@@ -4,9 +4,9 @@ import type { PlasmoCSConfig } from "plasmo"
 import { interceptFetch, watchUrlChanges } from "~leetcode/submission-detector"
 import type { SubmissionDetail } from "~types"
 
-// ---------------------------------------------------------------------------
-// Plasmo content script configuration — MAIN world
-// ---------------------------------------------------------------------------
+
+
+
 
 export const config: PlasmoCSConfig = {
   matches: ["https://leetcode.com/*"],
@@ -15,16 +15,16 @@ export const config: PlasmoCSConfig = {
   world: "MAIN"
 }
 
-// ---------------------------------------------------------------------------
-// Message key used for window.postMessage communication
-// ---------------------------------------------------------------------------
+
+
+
 
 
 const LGS_MESSAGE_TYPE = "LGS_SUBMISSION_ACCEPTED"
 
-// ---------------------------------------------------------------------------
-// Main
-// ---------------------------------------------------------------------------
+
+
+
 
 
 function handleAcceptedSubmission(submission: SubmissionDetail): void {
@@ -32,7 +32,7 @@ function handleAcceptedSubmission(submission: SubmissionDetail): void {
     "[LGS] Accepted submission detected: #" + submission.problemId + " " + submission.problemTitle + " (" + submission.language + ")"
   )
 
-  // Post to the ISOLATED world content script
+  
   window.postMessage(
     {
       type: LGS_MESSAGE_TYPE,
@@ -42,15 +42,15 @@ function handleAcceptedSubmission(submission: SubmissionDetail): void {
   )
 }
 
-// ---------------------------------------------------------------------------
-// Initialisation
-// ---------------------------------------------------------------------------
+
+
+
 
 let cleanupFetch: (() => void) | null = null
 let cleanupUrlWatch: (() => void) | null = null
 
 function init() {
-  // Install both detection mechanisms
+  
   cleanupFetch = interceptFetch(handleAcceptedSubmission)
   cleanupUrlWatch = watchUrlChanges(handleAcceptedSubmission)
 
@@ -64,5 +64,5 @@ function cleanup() {
 
 init()
 
-// Clean up if the content script context is invalidated (e.g. extension update)
+
 window.addEventListener("pagehide", cleanup)

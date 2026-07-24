@@ -5,16 +5,16 @@ import type { SubmissionDetailsResponse } from "./graphql"
 import type { SubmissionDetail } from "~types"
 import { normaliseLanguage } from "~utils/language-map"
 
-// ---------------------------------------------------------------------------
-// LeetCode status codes (from their internal API)
-// ---------------------------------------------------------------------------
 
-/** LeetCode internal status code for "Accepted". */
+
+
+
+
 const STATUS_ACCEPTED = 10
 
-// ---------------------------------------------------------------------------
-// Submission detail fetcher
-// ---------------------------------------------------------------------------
+
+
+
 
 
 export async function fetchSubmissionDetails(
@@ -33,7 +33,7 @@ export async function fetchSubmissionDetails(
   const details = data.submissionDetails
   if (!details) return null
 
-  // Only proceed for Accepted submissions
+  
   if (details.statusCode !== STATUS_ACCEPTED) return null
 
   const question = details.question
@@ -46,39 +46,39 @@ export async function fetchSubmissionDetails(
     language: normaliseLanguage(details.lang.name),
     code: details.code,
     submissionId: String(numericId),
-    submittedAt: details.timestamp * 1000, // seconds → milliseconds
+    submittedAt: details.timestamp * 1000, 
     runtime: details.runtime ?? "",
     memory: details.memory ?? "",
     tags: details.question.topicTags.map((t) => t.name)
   }
 }
 
-// ---------------------------------------------------------------------------
-// Submission ID extraction helpers
-// ---------------------------------------------------------------------------
+
+
+
 
 
 export function extractSubmissionIdFromUrl(url: string): string | null {
-  // New-style URL: /problems/<slug>/submissions/<id>/
+  
   const newStyle = url.match(/\/problems\/[^/]+\/submissions\/(\d+)/)
   if (newStyle) return newStyle[1]
 
-  // Old-style URL: /submissions/detail/<id>/
+  
   const oldStyle = url.match(/\/submissions\/detail\/(\d+)/)
   if (oldStyle) return oldStyle[1]
 
   return null
 }
 
-// ---------------------------------------------------------------------------
-// Check-result response interceptor
-// ---------------------------------------------------------------------------
+
+
+
 
 
 interface CheckResultResponse {
-  state?: string         // "SUCCESS" | "PENDING" | "STARTED"
-  status_msg?: string    // "Accepted" | "Wrong Answer" | etc.
-  status_code?: number   // 10 = Accepted
+  state?: string         
+  status_msg?: string    
+  status_code?: number   
   submission_id?: string | number
 }
 
@@ -88,7 +88,7 @@ type SubmissionCallback = (submission: SubmissionDetail) => void
 export function interceptFetch(onAccepted: SubmissionCallback): () => void {
   const originalFetch = window.fetch.bind(window)
 
-  // Track submission IDs we've already processed to avoid duplicate uploads
+  
   const processedIds = new Set<string>()
 
   window.fetch = async function (
@@ -98,10 +98,10 @@ export function interceptFetch(onAccepted: SubmissionCallback): () => void {
     const response = await originalFetch(input, init)
     const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url
 
-    // Only inspect LeetCode check-polling and submit responses
+    
     if (isCheckUrl(url) || isSubmitUrl(url)) {
       console.info("[LGS] Intercepted submission endpoint:", url)
-      // Clone the response so we can read it without consuming the stream
+      
       const clone = response.clone()
       clone
         .json()
@@ -117,7 +117,7 @@ export function interceptFetch(onAccepted: SubmissionCallback): () => void {
     return response
   }
 
-  // Return cleanup so the content script can restore fetch on unload
+  
   return () => {
     window.fetch = originalFetch
   }
@@ -129,7 +129,7 @@ async function handleCheckResponse(
   processedIds: Set<string>,
   onAccepted: SubmissionCallback
 ): Promise<void> {
-  // Must be a completed successful state
+  
   if (json.state !== "SUCCESS") {
     console.debug("[LGS] Submission state is not SUCCESS yet:", json.state)
     return
@@ -146,7 +146,7 @@ async function handleCheckResponse(
   }
   const submissionId = String(rawId)
 
-  // Deduplicate — the check endpoint is polled multiple times
+  
   if (processedIds.has(submissionId)) return
   processedIds.add(submissionId)
 
@@ -159,13 +159,13 @@ async function handleCheckResponse(
     }
   } catch (err) {
     console.error("[LGS] Failed to fetch submission details:", err)
-    processedIds.delete(submissionId) // allow retry on next poll
+    processedIds.delete(submissionId) 
   }
 }
 
-// ---------------------------------------------------------------------------
-// URL-change observer
-// ---------------------------------------------------------------------------
+
+
+
 
 
 export function watchUrlChanges(onAccepted: SubmissionCallback): () => void {
@@ -191,14 +191,14 @@ export function watchUrlChanges(onAccepted: SubmissionCallback): () => void {
       })
   }
 
-  // Listen for back/forward navigation
+  
   window.addEventListener("popstate", checkCurrentUrl)
 
-  // Observe DOM changes to catch pushState navigation (SPA routing)
+  
   const observer = new MutationObserver(checkCurrentUrl)
   observer.observe(document.body, { childList: true, subtree: true })
 
-  // Also patch history.pushState / replaceState
+  
   const origPush = history.pushState.bind(history)
   const origReplace = history.replaceState.bind(history)
 
@@ -219,9 +219,9 @@ export function watchUrlChanges(onAccepted: SubmissionCallback): () => void {
   }
 }
 
-// ---------------------------------------------------------------------------
-// URL pattern matchers
-// ---------------------------------------------------------------------------
+
+
+
 
 function isCheckUrl(url: string): boolean {
   return url.includes("/submissions/detail/") && url.includes("/check")

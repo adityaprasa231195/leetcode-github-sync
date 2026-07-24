@@ -1,4 +1,4 @@
-/** @type {import('tailwindcss').Config} */
+
 module.exports = {
   mode: "jit",
   darkMode: "class",
@@ -10,7 +10,7 @@ module.exports = {
         mono: ["JetBrains Mono", "Fira Code", "monospace"]
       },
       colors: {
-        // Black & white minimalist palette
+        
         brand: {
           50: "#fafafa",
           100: "#f4f4f5",

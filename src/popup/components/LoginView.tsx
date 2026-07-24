@@ -9,7 +9,7 @@ interface LoginViewProps {
   onLogin: () => void
 }
 
-// GitHub OAuth App client ID — injected from .env at build time
+
 const CLIENT_ID = process.env.PLASMO_PUBLIC_GITHUB_CLIENT_ID ?? ""
 
 export function LoginView({ onLogin }: LoginViewProps) {
@@ -25,7 +25,7 @@ export function LoginView({ onLogin }: LoginViewProps) {
       await oauthMsg.send()
       onLogin()
     } catch {
-      // error is already set in oauthMsg.error
+      
     }
   }
 
@@ -39,13 +39,13 @@ export function LoginView({ onLogin }: LoginViewProps) {
       await patMsg.send({ pat: pat.trim() })
       onLogin()
     } catch {
-      // error is set in patMsg.error
+      
     }
   }
 
   return (
     <div className="flex flex-col items-center gap-6 py-8 px-6 animate-fade-in">
-      {/* Logo / header */}
+      {}
       <div className="flex flex-col items-center gap-2 text-center">
         <div className="w-12 h-12 rounded-xl bg-black flex items-center justify-center text-white text-xl font-bold select-none">
           LC
@@ -56,7 +56,7 @@ export function LoginView({ onLogin }: LoginViewProps) {
         </p>
       </div>
 
-      {/* OAuth button (primary path) */}
+      {}
       {CLIENT_ID && (
         <Button
           className="w-full"
@@ -72,14 +72,14 @@ export function LoginView({ onLogin }: LoginViewProps) {
         <p className="text-xs text-red-600 text-center">{oauthMsg.error}</p>
       )}
 
-      {/* Divider */}
+      {}
       <div className="w-full flex items-center gap-2">
         <div className="flex-1 h-px bg-brand-200" />
         <span className="text-xs text-brand-400">or</span>
         <div className="flex-1 h-px bg-brand-200" />
       </div>
 
-      {/* PAT alternative */}
+      {}
       {!showPat ? (
         <button
           onClick={() => setShowPat(true)}
@@ -89,7 +89,7 @@ export function LoginView({ onLogin }: LoginViewProps) {
         </button>
       ) : (
         <div className="w-full flex flex-col gap-3 animate-slide-up">
-          {/* How-to guide card */}
+          {}
           <div className="rounded-lg bg-brand-50 p-3 border border-brand-200 text-xs text-brand-700 flex flex-col gap-1.5">
             <span className="font-semibold text-brand-900">
               📖 How to get a key:

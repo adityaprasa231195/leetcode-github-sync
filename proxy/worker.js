@@ -2,7 +2,7 @@
 
 export default {
   async fetch(request, env) {
-    // Handle CORS preflight
+    
     if (request.method === "OPTIONS") {
       return corsResponse(null, 204, env)
     }
@@ -24,7 +24,7 @@ export default {
       return corsResponse({ error: "Missing or invalid code" }, 400, env)
     }
 
-    // Exchange code for access token with GitHub
+    
     const githubResponse = await fetch(
       "https://github.com/login/oauth/access_token",
       {
@@ -60,7 +60,7 @@ export default {
       return corsResponse({ error: "No access_token in GitHub response" }, 502, env)
     }
 
-    // Return ONLY the access token — never expose other fields
+    
     return corsResponse({ access_token: data.access_token }, 200, env)
   }
 }

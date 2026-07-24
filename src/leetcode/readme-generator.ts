@@ -3,7 +3,7 @@
 import type { SubmissionDetail, UploadRecord } from "~types"
 import { getDisplayName } from "~utils/language-map"
 
-// Difficulty badge colours (rendered as plain text labels in GitHub markdown)
+
 const DIFFICULTY_LABEL: Record<string, string> = {
   Easy: "🟢 Easy",
   Medium: "🟡 Medium",
@@ -22,17 +22,17 @@ export function generateReadme(
       ? submission.tags.map((t) => `\`${t}\``).join(" · ")
       : "_none_"
 
-  // Build the solutions table — deduplicate by language, prefer the latest entry
+  
   const byLanguage = new Map<string, UploadRecord>()
 
-  // Add prior uploads first (older)
+  
   for (const r of priorUploads) {
     if (r.status === "success") {
       byLanguage.set(r.language, r)
     }
   }
 
-  // Overwrite with the current submission so the latest data wins
+  
   const now = Date.now()
   byLanguage.set(submission.language, {
     timestamp: now,
@@ -54,7 +54,7 @@ export function generateReadme(
     })
     .join("\n")
 
-  // Runtime / memory block (only for the current submission if available)
+  
   const statsBlock =
     submission.runtime || submission.memory
       ? `\n## Stats (latest submission)\n\n| Metric | Value |\n|--------|-------|\n${submission.runtime ? `| Runtime | ${submission.runtime} |\n` : ""}${submission.memory ? `| Memory  | ${submission.memory} |\n` : ""}`
@@ -78,12 +78,12 @@ _Auto-synced by [LeetCode GitHub Sync](https://github.com/your-username/leetcode
 `
 }
 
-// ---------------------------------------------------------------------------
-// Internal helpers
-// ---------------------------------------------------------------------------
+
+
+
 
 function getExt(language: string): string {
-  // Inline minimal map to avoid circular imports between modules
+  
   const map: Record<string, string> = {
     cpp: "cpp", java: "java", python: "py", python3: "py", c: "c",
     csharp: "cs", javascript: "js", typescript: "ts", php: "php",

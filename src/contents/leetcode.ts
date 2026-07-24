@@ -3,9 +3,9 @@
 import type { PlasmoCSConfig } from "plasmo"
 import type { ExtensionMessage, SubmissionDetail } from "~types"
 
-// ---------------------------------------------------------------------------
-// Plasmo content script configuration — ISOLATED world (default)
-// ---------------------------------------------------------------------------
+
+
+
 
 export const config: PlasmoCSConfig = {
   matches: ["https://leetcode.com/*"],
@@ -13,15 +13,15 @@ export const config: PlasmoCSConfig = {
   all_frames: false
 }
 
-// ---------------------------------------------------------------------------
-// Message key — must match the one in leetcode-main.ts
-// ---------------------------------------------------------------------------
+
+
+
 
 const LGS_MESSAGE_TYPE = "LGS_SUBMISSION_ACCEPTED"
 
-// ---------------------------------------------------------------------------
-// Submission detail shape validator
-// ---------------------------------------------------------------------------
+
+
+
 
 
 function isSubmissionDetail(data: unknown): data is SubmissionDetail {
@@ -37,12 +37,12 @@ function isSubmissionDetail(data: unknown): data is SubmissionDetail {
   )
 }
 
-// ---------------------------------------------------------------------------
-// Message listener
-// ---------------------------------------------------------------------------
+
+
+
 
 function onWindowMessage(event: MessageEvent): void {
-  // Only accept messages from the same window (same-origin MAIN world script)
+  
   if (event.source !== window) return
 
   const data = event.data
@@ -72,20 +72,20 @@ async function forwardToBackground(submission: SubmissionDetail): Promise<void> 
   try {
     await chrome.runtime.sendMessage(message)
   } catch (err) {
-    // Background worker may not be ready yet on first load; log and continue.
+    
     console.warn("[LGS] Could not reach background worker:", err)
   }
 }
 
-// ---------------------------------------------------------------------------
-// Initialisation
-// ---------------------------------------------------------------------------
+
+
+
 
 window.addEventListener("message", onWindowMessage)
 
 console.info("[LGS] LeetCode GitHub Sync ISOLATED world bridge active")
 
-// Clean up on unload
+
 window.addEventListener("pagehide", () => {
   window.removeEventListener("message", onWindowMessage)
 })

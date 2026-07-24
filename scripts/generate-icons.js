@@ -11,11 +11,11 @@ const ASSETS_DIR = path.join(__dirname, "..", "assets")
 
 if (!fs.existsSync(ASSETS_DIR)) fs.mkdirSync(ASSETS_DIR, { recursive: true })
 
-// ---------------------------------------------------------------------------
-// Minimal PNG encoder (no dependencies)
-// ---------------------------------------------------------------------------
 
-/** CRC32 lookup table */
+
+
+
+
 const CRC_TABLE = (() => {
   const t = new Uint32Array(256)
   for (let n = 0; n < 256; n++) {
@@ -50,28 +50,28 @@ function pngChunk(type, data) {
 
 
 function encodePNG(width, height, rgba) {
-  // PNG signature
+  
   const sig = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
 
-  // IHDR chunk
+  
   const ihdrData = Buffer.concat([
     u32be(width),
     u32be(height),
-    Buffer.from([8, 2, 0, 0, 0]) // bit depth=8, color type=2 (RGB), compress=0, filter=0, interlace=0
+    Buffer.from([8, 2, 0, 0, 0]) 
   ])
 
-  // Build raw scanlines (filter byte 0 + RGB pixels per row)
+  
   const rowBytes = width * 3
   const rawData = Buffer.alloc((rowBytes + 1) * height)
   for (let y = 0; y < height; y++) {
-    rawData[y * (rowBytes + 1)] = 0 // filter type: None
+    rawData[y * (rowBytes + 1)] = 0 
     for (let x = 0; x < width; x++) {
       const src = (y * width + x) * 4
       const dst = y * (rowBytes + 1) + 1 + x * 3
-      rawData[dst] = rgba[src]     // R
-      rawData[dst + 1] = rgba[src + 1] // G
-      rawData[dst + 2] = rgba[src + 2] // B
-      // alpha ignored (we pre-mix onto white background)
+      rawData[dst] = rgba[src]     
+      rawData[dst + 1] = rgba[src + 1] 
+      rawData[dst + 2] = rgba[src + 2] 
+      
     }
   }
 
@@ -84,30 +84,30 @@ function encodePNG(width, height, rgba) {
   return Buffer.concat([sig, ihdr, idat, iend])
 }
 
-// ---------------------------------------------------------------------------
-// Icon renderer — black background, white "LC" text
-// ---------------------------------------------------------------------------
+
+
+
 
 
 function renderIcon(size) {
   const pixels = new Uint8Array(size * size * 4)
 
-  // Fill entire icon with black (0,0,0,255)
+  
   for (let i = 0; i < size * size; i++) {
-    pixels[i * 4] = 0      // R
-    pixels[i * 4 + 1] = 0  // G
-    pixels[i * 4 + 2] = 0  // B
-    pixels[i * 4 + 3] = 255 // A
+    pixels[i * 4] = 0      
+    pixels[i * 4 + 1] = 0  
+    pixels[i * 4 + 2] = 0  
+    pixels[i * 4 + 3] = 255 
   }
 
-  // Draw a white rounded-ish region: just draw a centred white rounded rect
-  // For simplicity at small sizes: filled white circle/rounded square
+  
+  
   const margin = Math.floor(size * 0.1)
-  const r = Math.floor(size * 0.15) // corner radius (approximated)
+  const r = Math.floor(size * 0.15) 
 
   for (let y = margin; y < size - margin; y++) {
     for (let x = margin; x < size - margin; x++) {
-      // Crude rounded corner check
+      
       const dx = Math.min(x - margin, size - margin - 1 - x)
       const dy = Math.min(y - margin, size - margin - 1 - y)
       if (dx < r && dy < r) {
@@ -120,7 +120,7 @@ function renderIcon(size) {
     }
   }
 
-  // Draw black "LC" text on top of the white region using a simple bitmap font
+  
   drawText(pixels, size, "LC", 0, 0, 0)
 
   return pixels
@@ -167,7 +167,7 @@ function drawText(pixels, size, text, r, g, b) {
       for (let col = 0; col < GLYPH_W; col++) {
         const bit = (glyph[row] >> (GLYPH_W - 1 - col)) & 1
         if (!bit) continue
-        // Draw scaled pixel block
+        
         for (let sy = 0; sy < scale; sy++) {
           for (let sx = 0; sx < scale; sx++) {
             const px = cx + col * scale + sx
@@ -186,9 +186,9 @@ function drawText(pixels, size, text, r, g, b) {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Generate all sizes
-// ---------------------------------------------------------------------------
+
+
+
 
 for (const size of SIZES) {
   const rgba = renderIcon(size)
@@ -198,7 +198,7 @@ for (const size of SIZES) {
   console.log(`  ✓ assets/icon${size}.png  (${png.length} bytes)`)
 }
 
-// Plasmo uses assets/icon.png as its source for auto-resizing
+
 const icon128 = path.join(ASSETS_DIR, "icon128.png")
 const iconSrc = path.join(ASSETS_DIR, "icon.png")
 fs.copyFileSync(icon128, iconSrc)

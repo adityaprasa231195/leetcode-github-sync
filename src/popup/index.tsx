@@ -21,7 +21,7 @@ export default function Popup() {
   const logoutMsg = useMessage("LOGOUT")
   const settingsMsg = useMessage("SET_SETTINGS")
 
-  // ── Loading ────────────────────────────────────────────────────────────────
+  
   if (loading) {
     return (
       <div className="w-[380px] flex items-center justify-center h-32">
@@ -30,7 +30,7 @@ export default function Popup() {
     )
   }
 
-  // ── Error ──────────────────────────────────────────────────────────────────
+  
   if (error) {
     return (
       <div className="w-[380px] p-6 flex flex-col items-center gap-3 text-center">
@@ -42,7 +42,7 @@ export default function Popup() {
     )
   }
 
-  // ── Not authenticated ──────────────────────────────────────────────────────
+  
   if (!status?.isAuthenticated) {
     return (
       <div className="w-[380px]">
@@ -51,7 +51,7 @@ export default function Popup() {
     )
   }
 
-  // ── Authenticated but no repo selected ────────────────────────────────────
+  
   if (!status.selectedRepo && view !== "repo-select") {
     return (
       <div className="w-[380px]">
@@ -75,7 +75,7 @@ export default function Popup() {
     )
   }
 
-  // ── Repo selection view ───────────────────────────────────────────────────
+  
   if (view === "repo-select") {
     return (
       <div className="w-[380px]">
@@ -99,7 +99,7 @@ export default function Popup() {
     )
   }
 
-  // ── History view ──────────────────────────────────────────────────────────
+  
   if (view === "history") {
     return (
       <div className="w-[380px]">
@@ -117,7 +117,7 @@ export default function Popup() {
     )
   }
 
-  // ── Main status view ──────────────────────────────────────────────────────
+  
   return (
     <div className="w-[380px]">
       <PopupHeader
@@ -137,7 +137,7 @@ export default function Popup() {
           refresh()
         }}
       />
-      {/* Settings shortcut */}
+      {}
       <div className="px-4 py-3 border-t border-brand-100">
         <button
           onClick={() => chrome.runtime.openOptionsPage()}
@@ -150,9 +150,9 @@ export default function Popup() {
   )
 }
 
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
+
+
+
 
 function PopupHeader({
   credentials,

@@ -10,7 +10,7 @@
   }
 
   html {
-    /* Prevent flash of unstyled content in extension popup */
+    
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -23,11 +23,11 @@
     line-height: 1.5;
     margin: 0;
     padding: 0;
-    /* Prevent body from being wider than the popup */
+    
     min-width: 0;
   }
 
-  /* Thin scrollbar for history lists */
+  
   ::-webkit-scrollbar {
     width: 4px;
   }

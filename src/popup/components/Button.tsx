@@ -1,4 +1,4 @@
-/** Reusable button component — black/white minimalist style. */
+
 
 import type { ButtonHTMLAttributes, ReactNode } from "react"
 import { Spinner } from "./Spinner"

@@ -14,7 +14,7 @@ export function HistoryList() {
 
   useEffect(() => {
     fetchHistory.send().then(setRecords).catch(() => {})
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [])
 
   async function handleClear() {

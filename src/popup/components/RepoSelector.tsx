@@ -26,7 +26,7 @@ export function RepoSelector({ currentRepo, onSelect, onCancel }: RepoSelectorPr
       .send()
       .then(setRepos)
       .catch((err) => setLoadError(err.message))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [])
 
   const filtered = useMemo(
@@ -43,7 +43,7 @@ export function RepoSelector({ currentRepo, onSelect, onCancel }: RepoSelectorPr
       await setRepo.send(selected)
       onSelect(selected)
     } catch {
-      // error shown below
+      
     }
   }
 
@@ -82,7 +82,7 @@ export function RepoSelector({ currentRepo, onSelect, onCancel }: RepoSelectorPr
         />
       </div>
 
-      {/* Repository list */}
+      {}
       <ul className="max-h-52 overflow-y-auto divide-y divide-brand-100 border-y border-brand-100">
         {filtered.length === 0 && (
           <li className="py-6 text-center text-sm text-brand-400">
@@ -136,7 +136,7 @@ export function RepoSelector({ currentRepo, onSelect, onCancel }: RepoSelectorPr
         <p className="px-4 text-xs text-red-600">{setRepo.error}</p>
       )}
 
-      {/* Actions */}
+      {}
       <div className="flex gap-2 px-4 pb-4">
         {onCancel && (
           <Button variant="secondary" size="sm" onClick={onCancel}>

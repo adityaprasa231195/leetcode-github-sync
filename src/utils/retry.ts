@@ -1,15 +1,15 @@
 
 
 export interface RetryOptions {
-  /** Maximum number of attempts (including the first). Default: 3 */
+  
   maxAttempts?: number
-  /** Base delay in milliseconds. Default: 500 */
+  
   baseDelayMs?: number
-  /** Maximum delay cap in milliseconds. Default: 10_000 */
+  
   maxDelayMs?: number
-  /** Jitter factor 0–1 added to each delay to avoid thundering herd. Default: 0.2 */
+  
   jitter?: number
-  /** Predicate to decide whether to retry for a given error. Default: always retry. */
+  
   shouldRetry?: (error: unknown, attempt: number) => boolean
 }
 
@@ -48,14 +48,14 @@ export async function withRetry<T>(
   throw lastError
 }
 
-/** Returns true when the error looks like a transient HTTP error worth retrying. */
+
 export function isRetryableHttpError(error: unknown): boolean {
   if (error instanceof Error) {
-    // Octokit wraps HTTP errors with a `status` property
+    
     const status = (error as { status?: number }).status
-    if (status === undefined) return true          // network-level error
-    if (status === 429) return true               // rate limited
-    if (status >= 500 && status < 600) return true // server errors
+    if (status === undefined) return true          
+    if (status === 429) return true               
+    if (status >= 500 && status < 600) return true 
   }
   return false
 }

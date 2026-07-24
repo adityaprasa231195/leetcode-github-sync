@@ -2,7 +2,7 @@
 
 import type { LeetCodeLanguage } from "~types"
 
-/** Map from LeetCode language slug → file extension (without the leading dot). */
+
 export const LANGUAGE_EXTENSION: Record<string, string> = {
   cpp: "cpp",
   java: "java",
@@ -31,7 +31,7 @@ export const LANGUAGE_EXTENSION: Record<string, string> = {
   cangjie: "cj"
 }
 
-/** Map from LeetCode language slug → display name used in UI and commit messages. */
+
 export const LANGUAGE_DISPLAY: Record<string, string> = {
   cpp: "C++",
   java: "Java",

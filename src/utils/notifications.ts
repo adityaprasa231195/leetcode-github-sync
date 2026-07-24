@@ -3,17 +3,17 @@
 import type { SubmissionDetail, UploadRecord } from "~types"
 import { getDisplayName } from "./language-map"
 
-/** Base notification ID — a suffix is appended per notification type. */
+
 const NOTIF_BASE = "lgs"
 
 import iconUrlBase64 from "data-base64:../../assets/icon128.png"
 
-/** Icon path for notifications. */
+
 const ICON_URL = iconUrlBase64
 
-// ---------------------------------------------------------------------------
-// Internal helper
-// ---------------------------------------------------------------------------
+
+
+
 
 function create(
   id: string,
@@ -31,9 +31,9 @@ function create(
   })
 }
 
-// ---------------------------------------------------------------------------
-// Public notification functions
-// ---------------------------------------------------------------------------
+
+
+
 
 
 export function notifySuccess(record: UploadRecord): void {

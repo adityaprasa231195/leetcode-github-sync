@@ -1,4 +1,4 @@
-/** Small status badge. */
+
 
 import type { ReactNode } from "react"
 

@@ -1,4 +1,4 @@
-/** Minimal animated spinner used throughout the popup. */
+
 
 export function Spinner({ size = 16 }: { size?: number }) {
   return (

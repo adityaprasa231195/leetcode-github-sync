@@ -6,9 +6,9 @@ import { getCredentials, getSettings } from "~storage"
 import type { GitHubRepo } from "~types"
 import { isRetryableHttpError, withRetry } from "~utils/retry"
 
-// ---------------------------------------------------------------------------
-// Octokit factory
-// ---------------------------------------------------------------------------
+
+
+
 
 
 async function getOctokit(): Promise<Octokit> {
@@ -23,16 +23,16 @@ async function getOctokit(): Promise<Octokit> {
     auth: credentials.accessToken,
     baseUrl: settings.githubApiBaseUrl || "https://api.github.com",
     userAgent: "LeetCode-GitHub-Sync/1.0.0",
-    // Octokit has built-in request throttling via @octokit/plugin-throttling
-    // when installed.  Without it we rely on our own withRetry() wrapper.
+    
+    
   })
 }
 
-// ---------------------------------------------------------------------------
-// Repository helpers
-// ---------------------------------------------------------------------------
 
-/** Maximum number of repos to load per page (GitHub API max is 100). */
+
+
+
+
 const REPOS_PER_PAGE = 100
 
 
@@ -77,14 +77,14 @@ export async function listRepositories(): Promise<GitHubRepo[]> {
   return repos
 }
 
-// ---------------------------------------------------------------------------
-// File operations
-// ---------------------------------------------------------------------------
+
+
+
 
 export interface ExistingFileInfo {
   sha: string
-  content: string // base64-encoded, as returned by GitHub
-  encodedContent: string // decoded UTF-8 string
+  content: string 
+  encodedContent: string 
 }
 
 
@@ -108,7 +108,7 @@ export async function getExistingFile(
       { shouldRetry: isRetryableHttpError }
     )
 
-    // getContent can return an array (directory) or a single file object
+    
     if (Array.isArray(data) || data.type !== "file") {
       return null
     }
@@ -119,7 +119,7 @@ export async function getExistingFile(
       encoding: string
     }
 
-    // Decode base64 → UTF-8
+    
     const encoded = raw.content.replace(/\n/g, "")
     const decoded = decodeBase64ToUtf8(encoded)
 
@@ -136,11 +136,11 @@ export async function getExistingFile(
 }
 
 export interface UploadFileResult {
-  /** Whether the file was newly created (false = updated). */
+  
   created: boolean
-  /** GitHub permalink to the file on the default branch. */
+  
   fileUrl: string
-  /** Git commit SHA. */
+  
   commitSha: string
 }
 
@@ -182,9 +182,9 @@ export async function uploadFile(
   }
 }
 
-// ---------------------------------------------------------------------------
-// Composite: upsert file with duplicate detection
-// ---------------------------------------------------------------------------
+
+
+
 
 export type UpsertResult =
   | { status: "created"; fileUrl: string; commitSha: string }
@@ -203,7 +203,7 @@ export async function upsertFile(
   const existing = await getExistingFile(owner, repo, path, branch)
 
   if (existing) {
-    // Compare decoded content — normalise line endings before comparison
+    
     const normaliseLE = (s: string) => s.replace(/\r\n/g, "\n").trimEnd()
     if (normaliseLE(existing.encodedContent) === normaliseLE(content)) {
       return {
@@ -236,12 +236,12 @@ export async function upsertFile(
   return { status: "created", fileUrl: result.fileUrl, commitSha: result.commitSha }
 }
 
-// ---------------------------------------------------------------------------
-// Utility: Base64 ↔ UTF-8 (handles non-ASCII code like Chinese variable names)
-// ---------------------------------------------------------------------------
+
+
+
 
 function encodeUtf8ToBase64(str: string): string {
-  // TextEncoder gives us a Uint8Array from the UTF-8 representation
+  
   const bytes = new TextEncoder().encode(str)
   let binary = ""
   bytes.forEach((b) => (binary += String.fromCharCode(b)))

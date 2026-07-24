@@ -32,7 +32,7 @@ export default function OptionsPage() {
 
   useEffect(() => {
     refresh()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [])
 
   async function handleSettingChange(patch: Partial<ExtensionSettings>) {
@@ -66,7 +66,7 @@ export default function OptionsPage() {
 
   return (
     <div className="max-w-xl mx-auto px-6 py-10 space-y-8 animate-fade-in">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
         <p className="text-sm text-brand-500 mt-1">
@@ -74,7 +74,7 @@ export default function OptionsPage() {
         </p>
       </div>
 
-      {/* ── GitHub Account ─────────────────────────────────────────────────── */}
+      {}
       <Section title="GitHub Account">
         {isAuthenticated && credentials ? (
           <div className="flex items-center justify-between">
@@ -117,7 +117,7 @@ export default function OptionsPage() {
         )}
       </Section>
 
-      {/* ── Repository ─────────────────────────────────────────────────────── */}
+      {}
       <Section title="Repository">
         {showRepoSelector ? (
           <RepoSelector
@@ -149,7 +149,7 @@ export default function OptionsPage() {
                   variant="ghost"
                   size="sm"
                   onClick={async () => {
-                    // Clear repo via a null-ish payload — background handles it
+                    
                     await chrome.runtime.sendMessage(
                       { type: "SET_REPO", payload: null },
                       () => refresh()
@@ -171,7 +171,7 @@ export default function OptionsPage() {
         )}
       </Section>
 
-      {/* ── Sync Settings ──────────────────────────────────────────────────── */}
+      {}
       <Section title="Sync">
         <div className="space-y-4">
           <ToggleRow
@@ -201,7 +201,7 @@ export default function OptionsPage() {
         </div>
       </Section>
 
-      {/* ── File Structure ─────────────────────────────────────────────────── */}
+      {}
       <Section title="File Structure">
         <div className="space-y-4">
           <LabeledInput
@@ -223,7 +223,7 @@ export default function OptionsPage() {
         </div>
       </Section>
 
-      {/* ── GitHub Enterprise ──────────────────────────────────────────────── */}
+      {}
       <Section title="GitHub Enterprise (optional)">
         <LabeledInput
           label="API base URL"
@@ -238,7 +238,7 @@ export default function OptionsPage() {
         />
       </Section>
 
-      {/* ── Danger Zone ────────────────────────────────────────────────────── */}
+      {}
       <Section title="Danger Zone">
         <div className="flex items-center justify-between">
           <div>
@@ -265,7 +265,7 @@ export default function OptionsPage() {
         )}
       </Section>
 
-      {/* Footer */}
+      {}
       <footer className="text-xs text-brand-400 text-center pb-4">
         LeetCode GitHub Sync · v1.0.0
       </footer>
@@ -273,9 +273,9 @@ export default function OptionsPage() {
   )
 }
 
-// ---------------------------------------------------------------------------
-// Reusable section components
-// ---------------------------------------------------------------------------
+
+
+
 
 function Section({
   title,
@@ -344,7 +344,7 @@ function LabeledInput({
 }) {
   const [local, setLocal] = useState(value)
 
-  // Keep in sync when status refreshes
+  
   useEffect(() => setLocal(value), [value])
 
   return (

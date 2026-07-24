@@ -34,11 +34,11 @@ import {
 } from "~utils/notifications"
 import { readmePath, solutionPath } from "~utils/path"
 
-// ---------------------------------------------------------------------------
-// Pending-retry queue
-// Submissions that failed are stored here and retried via chrome.alarms.
-// In a real production build you'd persist this queue to storage.
-// ---------------------------------------------------------------------------
+
+
+
+
+
 
 interface PendingUpload {
   submission: SubmissionDetail
@@ -50,23 +50,11 @@ const pendingQueue: PendingUpload[] = []
 const ALARM_NAME = "lgs:retry"
 const MAX_RETRY_ATTEMPTS = 5
 
-// ---------------------------------------------------------------------------
-// Core upload pipeline
-// ---------------------------------------------------------------------------
 
-/**
- * Full upload pipeline for a single accepted submission.
- *
- * Steps:
- *   1. Check settings — is auto-sync enabled?
- *   2. Ensure the user is authenticated.
- *   3. Ensure a repository is selected.
- *   4. Build the solution file path.
- *   5. Upsert the solution file (skip if identical).
- *   6. Optionally upsert the README.md.
- *   7. Record the upload in history.
- *   8. Show a browser notification.
- */
+
+
+
+
 async function uploadSubmission(
   submission: SubmissionDetail
 ): Promise<UploadRecord> {
@@ -82,7 +70,7 @@ async function uploadSubmission(
     throw new Error("Not authenticated")
   }
 
-  // Check token hasn't expired (PATs don't have expiry but OAuth tokens might)
+  
   if (credentials.expiresAt && credentials.expiresAt < Date.now()) {
     if (settings.notificationsEnabled) notifyAuthExpired()
     throw new Error("GitHub token has expired — please log in again")
@@ -100,9 +88,9 @@ async function uploadSubmission(
     submission.language
   )
 
-  const commitMsg = buildCommitMessage(submission, false /* will be overridden by upsert */)
+  const commitMsg = buildCommitMessage(submission, false )
 
-  // Upsert solution file
+  
   const result = await upsertFile(
     repo.owner,
     repo.name,
@@ -122,7 +110,7 @@ async function uploadSubmission(
   const record = makeRecord(submission, "success", undefined, result.fileUrl)
   await addUploadRecord(record)
 
-  // Upsert README.md (optional, per settings)
+  
   if (settings.generateReadme) {
     const history = await getUploadHistory()
     const priorUploads = history.filter(
@@ -136,7 +124,7 @@ async function uploadSubmission(
     )
     const readmeCommitMsg = buildReadmeCommitMessage(submission)
 
-    // README failures are non-fatal — log but don't block the success record
+    
     await upsertFile(
       repo.owner,
       repo.name,
@@ -153,11 +141,11 @@ async function uploadSubmission(
   return record
 }
 
-// ---------------------------------------------------------------------------
-// Retry logic via chrome.alarms
-// ---------------------------------------------------------------------------
 
-/** Schedules a retry alarm if there are pending uploads. */
+
+
+
+
 function scheduleRetry(): void {
   if (pendingQueue.length === 0) return
   const earliest = Math.min(...pendingQueue.map((p) => p.nextRetryAt))
@@ -178,7 +166,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     } catch {
       pending.attempts++
       if (pending.attempts < MAX_RETRY_ATTEMPTS) {
-        const backoff = Math.min(30, 2 ** pending.attempts) // minutes
+        const backoff = Math.min(30, 2 ** pending.attempts) 
         pending.nextRetryAt = Date.now() + backoff * 60_000
         pendingQueue.push(pending)
       }
@@ -188,9 +176,9 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   scheduleRetry()
 })
 
-// ---------------------------------------------------------------------------
-// Message handlers
-// ---------------------------------------------------------------------------
+
+
+
 
 type MessageSender = chrome.runtime.MessageSender
 type SendResponse = (response: ExtensionResponse) => void
@@ -207,7 +195,7 @@ chrome.runtime.onMessage.addListener(
         console.error("[LGS] Message handler error:", message.type, err)
         const errMsg = err instanceof Error ? err.message : String(err)
 
-        // Surface specific error classes as typed notifications
+        
         if (errMsg.includes("rate limit") || errMsg.includes("429")) {
           notifyRateLimit()
         } else if (
@@ -223,7 +211,7 @@ chrome.runtime.onMessage.addListener(
         sendResponse({ success: false, error: errMsg })
       })
 
-    // Return true to keep the message channel open for the async response
+    
     return true
   }
 )
@@ -232,26 +220,26 @@ async function handleMessage(
   message: ExtensionMessage
 ): Promise<unknown> {
   switch (message.type) {
-    // ── Submission from content script ──────────────────────────────────────
+    
     case "SUBMISSION_ACCEPTED": {
       const submission = message.payload as SubmissionDetail
       try {
         return await uploadSubmission(submission)
       } catch (err) {
-        // Queue for retry
+        
         pendingQueue.push({
           submission,
           attempts: 1,
-          nextRetryAt: Date.now() + 2 * 60_000 // first retry in 2 min
+          nextRetryAt: Date.now() + 2 * 60_000 
         })
         scheduleRetry()
         throw err
       }
     }
 
-    // ── Auth ─────────────────────────────────────────────────────────────────
+    
     case "TRIGGER_OAUTH": {
-      // payload may optionally be a PAT string for PAT-based auth
+      
       const pat = (message.payload as { pat?: string } | undefined)?.pat
       if (pat) {
         return await authenticateWithPAT(pat)
@@ -265,7 +253,7 @@ async function handleMessage(
       return null
     }
 
-    // ── Status snapshot ───────────────────────────────────────────────────────
+    
     case "GET_STATUS": {
       const [credentials, selectedRepo, settings, history] = await Promise.all([
         getCredentials(),
@@ -283,7 +271,7 @@ async function handleMessage(
       return status
     }
 
-    // ── Repository management ─────────────────────────────────────────────────
+    
     case "GET_REPOS": {
       return await listRepositories()
     }
@@ -294,7 +282,7 @@ async function handleMessage(
       return repo
     }
 
-    // ── Settings ──────────────────────────────────────────────────────────────
+    
     case "GET_SETTINGS": {
       return await getSettings()
     }
@@ -305,7 +293,7 @@ async function handleMessage(
       return await getSettings()
     }
 
-    // ── History ───────────────────────────────────────────────────────────────
+    
     case "GET_UPLOAD_HISTORY": {
       return await getUploadHistory()
     }
@@ -315,13 +303,13 @@ async function handleMessage(
       return null
     }
 
-    // ── Reset repo ────────────────────────────────────────────────────────────
+    
     case "MANUAL_SYNC": {
-      // Placeholder: manual sync would iterate recent accepted submissions.
-      // Full implementation would require storing accepted-but-not-uploaded
-      // submissions or re-fetching from the LeetCode API, which requires
-      // scraping the user's submission history — outside our current scope.
-      // We surface this as a UI trigger for now.
+      
+      
+      
+      
+      
       return { message: "Manual sync triggered — check the LeetCode tab" }
     }
 
@@ -330,9 +318,9 @@ async function handleMessage(
   }
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+
+
+
 
 function makeRecord(
   submission: SubmissionDetail,
@@ -351,12 +339,12 @@ function makeRecord(
   }
 }
 
-// Keeps the service worker alive for the duration of long operations.
-// MV3 service workers can be suspended; we use chrome.alarms as a keepalive.
+
+
 chrome.alarms.create("lgs:keepalive", { periodInMinutes: 0.4 })
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "lgs:keepalive") {
-    // No-op — just keeps the service worker registered
+    
   }
 })
 

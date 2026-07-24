@@ -9,13 +9,13 @@ import {
 } from "~storage"
 import type { GitHubCredentials, OAuthState } from "~types"
 
-// ---------------------------------------------------------------------------
-// Build-time configuration
-// These values are injected at build time via .env files.
-// Rename .env.example → .env.local and fill in your values.
-// ---------------------------------------------------------------------------
 
-/** Your GitHub OAuth App's client_id.  Safe to embed in the extension. */
+
+
+
+
+
+
 const GITHUB_CLIENT_ID =
   process.env.PLASMO_PUBLIC_GITHUB_CLIENT_ID ?? "YOUR_GITHUB_CLIENT_ID"
 
@@ -23,14 +23,14 @@ const GITHUB_CLIENT_ID =
 const TOKEN_EXCHANGE_URL =
   process.env.PLASMO_PUBLIC_TOKEN_EXCHANGE_URL ?? "https://your-proxy.example.com/api/github-oauth"
 
-/** Scopes requested from GitHub.  "repo" covers public + private repo access. */
+
 const SCOPES = "repo read:user"
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
-/** Generates a cryptographically random hex string for CSRF protection. */
+
+
+
+
 function generateState(): string {
   const array = new Uint8Array(16)
   crypto.getRandomValues(array)
@@ -39,14 +39,14 @@ function generateState(): string {
     .join("")
 }
 
-/** Returns the redirect URL that chrome.identity manages for us. */
+
 function getRedirectUrl(): string {
   return chrome.identity.getRedirectURL("github")
 }
 
-// ---------------------------------------------------------------------------
-// OAuth flow
-// ---------------------------------------------------------------------------
+
+
+
 
 
 export async function initiateOAuthFlow(): Promise<GitHubCredentials> {
@@ -62,7 +62,7 @@ export async function initiateOAuthFlow(): Promise<GitHubCredentials> {
   authUrl.searchParams.set("scope", SCOPES)
   authUrl.searchParams.set("state", state)
 
-  // Launch the GitHub login popup managed by chrome.identity
+  
   const responseUrl = await new Promise<string>((resolve, reject) => {
     chrome.identity.launchWebAuthFlow(
       { url: authUrl.toString(), interactive: true },
@@ -80,7 +80,7 @@ export async function initiateOAuthFlow(): Promise<GitHubCredentials> {
     )
   })
 
-  // Parse the callback URL
+  
   const url = new URL(responseUrl)
   const returnedState = url.searchParams.get("state")
   const code = url.searchParams.get("code")
@@ -91,7 +91,7 @@ export async function initiateOAuthFlow(): Promise<GitHubCredentials> {
     throw new Error(`GitHub OAuth error: ${error}`)
   }
 
-  // Verify CSRF nonce
+  
   const savedState = await getOAuthState()
   await clearOAuthState()
 
@@ -103,22 +103,17 @@ export async function initiateOAuthFlow(): Promise<GitHubCredentials> {
     throw new Error("No authorisation code returned from GitHub")
   }
 
-  // Exchange the code for an access token via our proxy
+  
   const accessToken = await exchangeCodeForToken(code, state, redirectUrl)
 
-  // Fetch the authenticated user's profile
+  
   const credentials = await fetchUserProfile(accessToken)
   await setCredentials(credentials)
 
   return credentials
 }
 
-/**
- * Exchanges the temporary OAuth code for an access token.
- *
- * This call goes to the proxy server (not directly to GitHub) because
- * the client_secret must be kept on the server side.
- */
+
 async function exchangeCodeForToken(
   code: string,
   state: string,
@@ -148,10 +143,7 @@ async function exchangeCodeForToken(
   return json.access_token
 }
 
-/**
- * Fetches the authenticated user's GitHub profile and returns a
- * GitHubCredentials object ready to persist.
- */
+
 async function fetchUserProfile(
   accessToken: string
 ): Promise<GitHubCredentials> {
@@ -181,9 +173,9 @@ async function fetchUserProfile(
   }
 }
 
-// ---------------------------------------------------------------------------
-// PAT (Personal Access Token) — alternative to OAuth
-// ---------------------------------------------------------------------------
+
+
+
 
 
 export async function authenticateWithPAT(
@@ -197,9 +189,9 @@ export async function authenticateWithPAT(
   return credentials
 }
 
-// ---------------------------------------------------------------------------
-// Logout
-// ---------------------------------------------------------------------------
+
+
+
 
 
 export async function logout(): Promise<void> {
