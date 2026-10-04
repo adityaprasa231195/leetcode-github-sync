@@ -94,21 +94,28 @@ export interface GitHubRepo {
 
 
 
+export interface ApproachPayload {
+  extension: string
+  mimeType: string
+  contentBase64: string
+  isBinary: boolean
+  rawText?: string
+}
+
+export interface PendingSubmission {
+  submission: SubmissionDetail
+  detectedAt: number
+}
+
 export interface ExtensionSettings {
-  
   autoSyncEnabled: boolean
-  
   notificationsEnabled: boolean
-  
   githubApiBaseUrl: string
-  
   repoFolder: string
-  
   generateReadme: boolean
-  
   saveStats: boolean
-  
   theme: "light" | "dark" | "system"
+  requireApproach: boolean
 }
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {
@@ -118,35 +125,27 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   repoFolder: "LeetCode",
   generateReadme: true,
   saveStats: true,
-  theme: "system"
+  theme: "system",
+  requireApproach: true
 }
-
-
-
-
 
 export type UploadStatus = "success" | "skipped" | "error"
 
 export interface UploadRecord {
-  
   timestamp: number
   problemId: number
   problemTitle: string
   language: LeetCodeLanguage
   status: UploadStatus
-  
   fileUrl?: string
-  
   message?: string
 }
 
-
-
-
-
-
 export type MessageType =
   | "SUBMISSION_ACCEPTED"
+  | "SUBMIT_APPROACH"
+  | "GET_PENDING_SUBMISSION"
+  | "DISCARD_PENDING_SUBMISSION"
   | "GET_STATUS"
   | "TRIGGER_OAUTH"
   | "LOGOUT"
@@ -170,20 +169,10 @@ export interface ExtensionResponse<T = unknown> {
   error?: string
 }
 
-
-
-
-
 export interface OAuthState {
-  
   state: string
-  
   startedAt: number
 }
-
-
-
-
 
 export interface ExtensionStatus {
   isAuthenticated: boolean
@@ -191,5 +180,6 @@ export interface ExtensionStatus {
   selectedRepo?: GitHubRepo
   settings: ExtensionSettings
   lastUpload?: UploadRecord
-  pendingSubmission?: SubmissionDetail
+  pendingSubmission?: PendingSubmission | null
 }
+

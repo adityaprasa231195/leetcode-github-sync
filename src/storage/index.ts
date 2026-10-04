@@ -5,24 +5,22 @@ import type {
   GitHubCredentials,
   GitHubRepo,
   OAuthState,
+  PendingSubmission,
   UploadRecord
 } from "~types"
 import { DEFAULT_SETTINGS } from "~types"
-
-
-
-
 
 const KEYS = {
   CREDENTIALS: "lgs:credentials",
   REPO: "lgs:repo",
   SETTINGS: "lgs:settings",
   HISTORY: "lgs:history",
-  OAUTH_STATE: "lgs:oauth_state"
+  OAUTH_STATE: "lgs:oauth_state",
+  PENDING_SUBMISSION: "lgs:pending_submission"
 } as const
 
-
 const MAX_HISTORY = 100
+
 
 
 
@@ -153,15 +151,26 @@ export async function clearOAuthState(): Promise<void> {
   await remove(KEYS.OAUTH_STATE)
 }
 
+export async function getPendingSubmission(): Promise<PendingSubmission | null> {
+  return (await get<PendingSubmission>(KEYS.PENDING_SUBMISSION)) ?? null
+}
 
+export async function setPendingSubmission(
+  pending: PendingSubmission
+): Promise<void> {
+  await set(KEYS.PENDING_SUBMISSION, pending)
+}
 
-
+export async function clearPendingSubmission(): Promise<void> {
+  await remove(KEYS.PENDING_SUBMISSION)
+}
 
 export async function clearAll(): Promise<void> {
   await Promise.all([
     clearCredentials(),
     clearSelectedRepo(),
-    clearOAuthState()
-    
+    clearOAuthState(),
+    clearPendingSubmission()
   ])
 }
+

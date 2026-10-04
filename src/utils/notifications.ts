@@ -77,3 +77,13 @@ export function notifyRateLimit(): void {
     "Upload will be retried automatically in a few minutes."
   )
 }
+
+export function notifyPendingApproach(submission: SubmissionDetail): void {
+  create(
+    `${NOTIF_BASE}:pending:${submission.problemId}`,
+    "📝 Upload your approach",
+    `${submission.problemId}. ${submission.problemTitle}`,
+    "Auto-push paused until your approach is uploaded."
+  )
+}
+

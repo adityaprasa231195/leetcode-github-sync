@@ -34,3 +34,14 @@ export function readmePath(
 ): string {
   return `${repoFolder}/${folderName(problemId, problemTitle)}/README.md`
 }
+
+export function approachPath(
+  repoFolder: string,
+  problemId: number,
+  problemTitle: string,
+  extension: string
+): string {
+  const cleanExt = extension.replace(/^\./, "").toLowerCase()
+  return `${repoFolder}/${folderName(problemId, problemTitle)}/approach.${cleanExt}`
+}
+

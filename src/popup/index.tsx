@@ -11,9 +11,10 @@ import { LoginView } from "./components/LoginView"
 import { RepoSelector } from "./components/RepoSelector"
 import { Spinner } from "./components/Spinner"
 import { StatusCard } from "./components/StatusCard"
+import { ApproachUploadForm } from "~components/ApproachUploadForm"
 import type { GitHubRepo } from "~types"
 
-type View = "status" | "repo-select" | "history"
+type View = "status" | "repo-select" | "history" | "approach-upload"
 
 export default function Popup() {
   const { status, loading, error, refresh } = useExtensionState()
@@ -21,7 +22,6 @@ export default function Popup() {
   const logoutMsg = useMessage("LOGOUT")
   const settingsMsg = useMessage("SET_SETTINGS")
 
-  
   if (loading) {
     return (
       <div className="w-[380px] flex items-center justify-center h-32">
@@ -30,7 +30,6 @@ export default function Popup() {
     )
   }
 
-  
   if (error) {
     return (
       <div className="w-[380px] p-6 flex flex-col items-center gap-3 text-center">
@@ -42,7 +41,6 @@ export default function Popup() {
     )
   }
 
-  
   if (!status?.isAuthenticated) {
     return (
       <div className="w-[380px]">
@@ -51,7 +49,6 @@ export default function Popup() {
     )
   }
 
-  
   if (!status.selectedRepo && view !== "repo-select") {
     return (
       <div className="w-[380px]">
@@ -75,7 +72,6 @@ export default function Popup() {
     )
   }
 
-  
   if (view === "repo-select") {
     return (
       <div className="w-[380px]">
@@ -99,7 +95,6 @@ export default function Popup() {
     )
   }
 
-  
   if (view === "history") {
     return (
       <div className="w-[380px]">
@@ -117,7 +112,32 @@ export default function Popup() {
     )
   }
 
-  
+  if (view === "approach-upload" && status.pendingSubmission) {
+    return (
+      <div className="w-[380px]">
+        <header className="flex items-center justify-between px-4 py-3 border-b border-brand-100">
+          <button
+            onClick={() => setView("status")}
+            className="text-xs text-brand-500 hover:text-black flex items-center gap-1 font-medium"
+          >
+            ← Back
+          </button>
+          <span className="text-xs font-semibold">Upload Approach</span>
+          <div className="w-8" />
+        </header>
+        <ApproachUploadForm
+          submission={status.pendingSubmission.submission}
+          isPopup
+          onSuccess={() => {
+            setView("status")
+            refresh()
+          }}
+          onCancel={() => setView("status")}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="w-[380px]">
       <PopupHeader
@@ -129,6 +149,49 @@ export default function Popup() {
         logoutLoading={logoutMsg.loading}
       />
       <NavTabs view={view} onChangeView={setView} />
+
+      {status.pendingSubmission && (
+        <div className="mx-4 mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs">⚠️</span>
+                <span className="text-xs font-semibold text-amber-950">
+                  Approach Required
+                </span>
+              </div>
+              <p className="text-xs text-amber-900 mt-0.5 font-medium">
+                #{status.pendingSubmission.submission.problemId}{" "}
+                {status.pendingSubmission.submission.problemTitle}
+              </p>
+              <p className="text-[11px] text-amber-700">
+                Auto-push to GitHub is paused.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={async () => {
+                await chrome.runtime.sendMessage({
+                  type: "DISCARD_PENDING_SUBMISSION"
+                })
+                refresh()
+              }}
+              className="text-[10px] text-amber-800 hover:text-red-700 font-medium px-1.5 py-0.5"
+              title="Discard this submission"
+            >
+              Discard
+            </button>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => setView("approach-upload")}
+            className="w-full"
+          >
+            Upload Approach & Sync →
+          </Button>
+        </div>
+      )}
+
       <StatusCard
         status={status}
         onChangeRepo={() => setView("repo-select")}
@@ -137,7 +200,6 @@ export default function Popup() {
           refresh()
         }}
       />
-      {}
       <div className="px-4 py-3 border-t border-brand-100">
         <button
           onClick={() => chrome.runtime.openOptionsPage()}
@@ -149,6 +211,7 @@ export default function Popup() {
     </div>
   )
 }
+
 
 
 

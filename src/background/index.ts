@@ -6,33 +6,44 @@ import { generateReadme } from "~leetcode/readme-generator"
 import {
   addUploadRecord,
   clearAll,
+  clearPendingSubmission,
   clearSelectedRepo,
   clearUploadHistory,
   getCredentials,
+  getPendingSubmission,
   getSelectedRepo,
   getSettings,
   getUploadHistory,
+  setPendingSubmission,
   setSelectedRepo,
   setSettings
 } from "~storage"
 import type {
+  ApproachPayload,
   ExtensionMessage,
   ExtensionResponse,
   ExtensionStatus,
   GitHubRepo,
+  PendingSubmission,
   SubmissionDetail,
   UploadRecord
 } from "~types"
-import { buildCommitMessage, buildReadmeCommitMessage } from "~utils/commit-message"
+import {
+  buildApproachCommitMessage,
+  buildCommitMessage,
+  buildReadmeCommitMessage
+} from "~utils/commit-message"
 import { listRepositories } from "~github/api"
 import {
   notifyAuthExpired,
   notifyError,
+  notifyPendingApproach,
   notifyRateLimit,
   notifySkipped,
   notifySuccess
 } from "~utils/notifications"
-import { readmePath, solutionPath } from "~utils/path"
+import { approachPath, readmePath, solutionPath } from "~utils/path"
+
 
 
 
@@ -141,6 +152,100 @@ async function uploadSubmission(
   return record
 }
 
+async function uploadSubmissionWithApproach(
+  submission: SubmissionDetail,
+  approach: ApproachPayload
+): Promise<UploadRecord> {
+  const settings = await getSettings()
+
+  if (!settings.autoSyncEnabled) {
+    return makeRecord(submission, "skipped", "Auto-sync is disabled")
+  }
+
+  const credentials = await getCredentials()
+  if (!credentials?.accessToken) {
+    if (settings.notificationsEnabled) notifyAuthExpired()
+    throw new Error("Not authenticated")
+  }
+
+  if (credentials.expiresAt && credentials.expiresAt < Date.now()) {
+    if (settings.notificationsEnabled) notifyAuthExpired()
+    throw new Error("GitHub token has expired — please log in again")
+  }
+
+  const repo = await getSelectedRepo()
+  if (!repo) {
+    throw new Error("No repository selected")
+  }
+
+  const filePath = solutionPath(
+    settings.repoFolder,
+    submission.problemId,
+    submission.problemTitle,
+    submission.language
+  )
+  const commitMsg = buildCommitMessage(submission, false)
+
+  const solResult = await upsertFile(
+    repo.owner,
+    repo.name,
+    filePath,
+    submission.code,
+    commitMsg,
+    repo.defaultBranch
+  )
+
+  const appPath = approachPath(
+    settings.repoFolder,
+    submission.problemId,
+    submission.problemTitle,
+    approach.extension
+  )
+  const appCommitMsg = buildApproachCommitMessage(submission, false)
+
+  await upsertFile(
+    repo.owner,
+    repo.name,
+    appPath,
+    approach.contentBase64,
+    appCommitMsg,
+    repo.defaultBranch,
+    true
+  )
+
+  if (settings.generateReadme) {
+    const history = await getUploadHistory()
+    const priorUploads = history.filter(
+      (r) => r.problemId === submission.problemId && r.status === "success"
+    )
+    const readmeContent = generateReadme(submission, priorUploads, approach)
+    const rmPath = readmePath(
+      settings.repoFolder,
+      submission.problemId,
+      submission.problemTitle
+    )
+    const readmeCommitMsg = buildReadmeCommitMessage(submission)
+
+    await upsertFile(
+      repo.owner,
+      repo.name,
+      rmPath,
+      readmeContent,
+      readmeCommitMsg,
+      repo.defaultBranch
+    ).catch((err) => {
+      console.error("[LGS] README upsert failed:", err)
+    })
+  }
+
+  const fileUrl = solResult.status !== "skipped" ? solResult.fileUrl : undefined
+  const record = makeRecord(submission, "success", undefined, fileUrl)
+  await addUploadRecord(record)
+  if (settings.notificationsEnabled) notifySuccess(record)
+  return record
+}
+
+
 
 
 
@@ -223,10 +328,27 @@ async function handleMessage(
     
     case "SUBMISSION_ACCEPTED": {
       const submission = message.payload as SubmissionDetail
+      const settings = await getSettings()
+
+      if (!settings.autoSyncEnabled) {
+        return makeRecord(submission, "skipped", "Auto-sync is disabled")
+      }
+
+      if (settings.requireApproach) {
+        const pending: PendingSubmission = {
+          submission,
+          detectedAt: Date.now()
+        }
+        await setPendingSubmission(pending)
+        if (settings.notificationsEnabled) {
+          notifyPendingApproach(submission)
+        }
+        return { status: "pending_approach", submission }
+      }
+
       try {
         return await uploadSubmission(submission)
       } catch (err) {
-        
         pendingQueue.push({
           submission,
           attempts: 1,
@@ -237,9 +359,29 @@ async function handleMessage(
       }
     }
 
-    
+    case "SUBMIT_APPROACH": {
+      const payload = message.payload as {
+        submission: SubmissionDetail
+        approach: ApproachPayload
+      }
+      const record = await uploadSubmissionWithApproach(
+        payload.submission,
+        payload.approach
+      )
+      await clearPendingSubmission()
+      return record
+    }
+
+    case "GET_PENDING_SUBMISSION": {
+      return await getPendingSubmission()
+    }
+
+    case "DISCARD_PENDING_SUBMISSION": {
+      await clearPendingSubmission()
+      return null
+    }
+
     case "TRIGGER_OAUTH": {
-      
       const pat = (message.payload as { pat?: string } | undefined)?.pat
       if (pat) {
         return await authenticateWithPAT(pat)
@@ -253,23 +395,26 @@ async function handleMessage(
       return null
     }
 
-    
     case "GET_STATUS": {
-      const [credentials, selectedRepo, settings, history] = await Promise.all([
-        getCredentials(),
-        getSelectedRepo(),
-        getSettings(),
-        getUploadHistory()
-      ])
+      const [credentials, selectedRepo, settings, history, pendingSubmission] =
+        await Promise.all([
+          getCredentials(),
+          getSelectedRepo(),
+          getSettings(),
+          getUploadHistory(),
+          getPendingSubmission()
+        ])
       const status: ExtensionStatus = {
         isAuthenticated: !!credentials?.accessToken,
         credentials: credentials ?? undefined,
         selectedRepo: selectedRepo ?? undefined,
         settings,
-        lastUpload: history[0]
+        lastUpload: history[0],
+        pendingSubmission: pendingSubmission ?? undefined
       }
       return status
     }
+
 
     
     case "GET_REPOS": {

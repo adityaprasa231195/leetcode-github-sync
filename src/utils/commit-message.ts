@@ -17,3 +17,12 @@ export function buildCommitMessage(
 export function buildReadmeCommitMessage(submission: SubmissionDetail): string {
   return `Update README for LeetCode #${submission.problemId} - ${submission.problemTitle}`
 }
+
+export function buildApproachCommitMessage(
+  submission: SubmissionDetail,
+  isUpdate: boolean
+): string {
+  const verb = isUpdate ? "Update" : "Add"
+  return `${verb} approach for LeetCode #${submission.problemId} - ${submission.problemTitle}`
+}
+

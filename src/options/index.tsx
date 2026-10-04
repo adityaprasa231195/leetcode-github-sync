@@ -175,6 +175,12 @@ export default function OptionsPage() {
       <Section title="Sync">
         <div className="space-y-4">
           <ToggleRow
+            label="Require approach upload"
+            description="Pause auto-push until you upload or write your problem-solving approach."
+            checked={settings.requireApproach}
+            onChange={(v) => handleSettingChange({ requireApproach: v })}
+          />
+          <ToggleRow
             label="Auto-sync"
             description="Automatically upload accepted solutions as you solve them."
             checked={settings.autoSyncEnabled}
@@ -201,7 +207,6 @@ export default function OptionsPage() {
         </div>
       </Section>
 
-      {}
       <Section title="File Structure">
         <div className="space-y-4">
           <LabeledInput
@@ -218,10 +223,13 @@ export default function OptionsPage() {
             <br />
             &nbsp;&nbsp;&nbsp;&nbsp;solution.cpp
             <br />
+            &nbsp;&nbsp;&nbsp;&nbsp;approach.md (or .pdf, image, .txt)
+            <br />
             &nbsp;&nbsp;&nbsp;&nbsp;README.md
           </p>
         </div>
       </Section>
+
 
       {}
       <Section title="GitHub Enterprise (optional)">

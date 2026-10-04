@@ -1,8 +1,7 @@
 
 
-import type { SubmissionDetail, UploadRecord } from "~types"
+import type { ApproachPayload, SubmissionDetail, UploadRecord } from "~types"
 import { getDisplayName } from "~utils/language-map"
-
 
 const DIFFICULTY_LABEL: Record<string, string> = {
   Easy: "🟢 Easy",
@@ -10,10 +9,10 @@ const DIFFICULTY_LABEL: Record<string, string> = {
   Hard: "🔴 Hard"
 }
 
-
 export function generateReadme(
   submission: SubmissionDetail,
-  priorUploads: UploadRecord[]
+  priorUploads: UploadRecord[],
+  approach?: ApproachPayload
 ): string {
   const difficulty = DIFFICULTY_LABEL[submission.difficulty] ?? submission.difficulty
   const leetcodeUrl = `https://leetcode.com/problems/${submission.problemSlug}/`
@@ -22,17 +21,14 @@ export function generateReadme(
       ? submission.tags.map((t) => `\`${t}\``).join(" · ")
       : "_none_"
 
-  
   const byLanguage = new Map<string, UploadRecord>()
 
-  
   for (const r of priorUploads) {
     if (r.status === "success") {
       byLanguage.set(r.language, r)
     }
   }
 
-  
   const now = Date.now()
   byLanguage.set(submission.language, {
     timestamp: now,
@@ -54,11 +50,25 @@ export function generateReadme(
     })
     .join("\n")
 
-  
   const statsBlock =
     submission.runtime || submission.memory
       ? `\n## Stats (latest submission)\n\n| Metric | Value |\n|--------|-------|\n${submission.runtime ? `| Runtime | ${submission.runtime} |\n` : ""}${submission.memory ? `| Memory  | ${submission.memory} |\n` : ""}`
       : ""
+
+  let approachBlock = ""
+  if (approach) {
+    const ext = approach.extension.toLowerCase().replace(/^\./, "")
+    const approachFile = `approach.${ext}`
+    if (["png", "jpg", "jpeg"].includes(ext)) {
+      approachBlock = `\n## Approach\n\n![Approach](${approachFile})\n`
+    } else if (ext === "pdf") {
+      approachBlock = `\n## Approach\n\n📄 [View Solution Approach (PDF)](${approachFile})\n`
+    } else if (approach.rawText) {
+      approachBlock = `\n## Approach\n\n${approach.rawText.trim()}\n\n[View approach file](${approachFile})\n`
+    } else {
+      approachBlock = `\n## Approach\n\n[View approach file](${approachFile})\n`
+    }
+  }
 
   return `# ${submission.problemId}. ${submission.problemTitle}
 
@@ -71,12 +81,13 @@ export function generateReadme(
 | Language | File | Date |
 |----------|------|------|
 ${tableRows}
-${statsBlock}
+${statsBlock}${approachBlock}
 ---
 
 _Auto-synced by [LeetCode GitHub Sync](https://github.com/your-username/leetcode-github-sync)._
 `
 }
+
 
 
 

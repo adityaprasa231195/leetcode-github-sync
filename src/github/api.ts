@@ -121,7 +121,12 @@ export async function getExistingFile(
 
     
     const encoded = raw.content.replace(/\n/g, "")
-    const decoded = decodeBase64ToUtf8(encoded)
+    let decoded = ""
+    try {
+      decoded = decodeBase64ToUtf8(encoded)
+    } catch {
+      decoded = ""
+    }
 
     return {
       sha: raw.sha,
@@ -136,14 +141,10 @@ export async function getExistingFile(
 }
 
 export interface UploadFileResult {
-  
   created: boolean
-  
   fileUrl: string
-  
   commitSha: string
 }
-
 
 export async function uploadFile(
   owner: string,
@@ -152,10 +153,11 @@ export async function uploadFile(
   content: string,
   message: string,
   existingSha?: string,
-  branch?: string
+  branch?: string,
+  isBase64?: boolean
 ): Promise<UploadFileResult> {
   const octokit = await getOctokit()
-  const base64Content = encodeUtf8ToBase64(content)
+  const base64Content = isBase64 ? content : encodeUtf8ToBase64(content)
 
   const { data } = await withRetry(
     () =>
@@ -182,15 +184,10 @@ export async function uploadFile(
   }
 }
 
-
-
-
-
 export type UpsertResult =
   | { status: "created"; fileUrl: string; commitSha: string }
   | { status: "updated"; fileUrl: string; commitSha: string }
   | { status: "skipped"; reason: string }
-
 
 export async function upsertFile(
   owner: string,
@@ -198,17 +195,28 @@ export async function upsertFile(
   path: string,
   content: string,
   commitMessage: string,
-  branch?: string
+  branch?: string,
+  isBase64?: boolean
 ): Promise<UpsertResult> {
   const existing = await getExistingFile(owner, repo, path, branch)
 
   if (existing) {
-    
-    const normaliseLE = (s: string) => s.replace(/\r\n/g, "\n").trimEnd()
-    if (normaliseLE(existing.encodedContent) === normaliseLE(content)) {
-      return {
-        status: "skipped",
-        reason: "File already exists with identical content"
+    if (isBase64) {
+      const cleanExisting = existing.content.replace(/\s+/g, "")
+      const cleanNew = content.replace(/\s+/g, "")
+      if (cleanExisting === cleanNew) {
+        return {
+          status: "skipped",
+          reason: "File already exists with identical content"
+        }
+      }
+    } else {
+      const normaliseLE = (s: string) => s.replace(/\r\n/g, "\n").trimEnd()
+      if (normaliseLE(existing.encodedContent) === normaliseLE(content)) {
+        return {
+          status: "skipped",
+          reason: "File already exists with identical content"
+        }
       }
     }
 
@@ -219,7 +227,8 @@ export async function upsertFile(
       content,
       commitMessage,
       existing.sha,
-      branch
+      branch,
+      isBase64
     )
     return { status: "updated", fileUrl: result.fileUrl, commitSha: result.commitSha }
   }
@@ -231,7 +240,8 @@ export async function upsertFile(
     content,
     commitMessage,
     undefined,
-    branch
+    branch,
+    isBase64
   )
   return { status: "created", fileUrl: result.fileUrl, commitSha: result.commitSha }
 }
